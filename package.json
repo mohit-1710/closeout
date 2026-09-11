@@ -1,0 +1,41 @@
+{
+  "name": "closeout",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "test:browser": "node scripts/browser-smoke.mjs"
+  },
+  "dependencies": {
+    "@polymarket/bindings": "0.10.0",
+    "@polymarket/client": "0.10.0",
+    "@privy-io/react-auth": "3.42.0",
+    "decimal.js": "^10.6.0",
+    "lucide-react": "^0.577.0",
+    "next": "16.3.5",
+    "react": "^19.2.0",
+    "react-dom": "^19.2.0",
+    "viem": "2.56.3"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.58.0",
+    "@tailwindcss/postcss": "^4.2.0",
+    "@types/node": "^24.0.0",
+    "@types/react": "^19.2.0",
+    "@types/react-dom": "^19.2.0",
+    "tailwindcss": "^4.2.0",
+    "typescript": "^5.9.3",
+    "vitest": "^4.0.0"
+  },
+  "overrides": {
+    "ws@>=8.0.0 <8.21.0": "^8.21.0",
+    "axios@>=1.0.0 <1.18.0": "^1.18.0"
+  },
+  "engines": {
+    "node": ">=24"
+  }
+}

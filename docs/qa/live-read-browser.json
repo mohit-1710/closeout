@@ -1,0 +1,14 @@
+{
+  "startedAt": "2026-09-11T20:48:44.434Z",
+  "finishedAt": "2026-09-11T20:48:45.176Z",
+  "scope": "Unintercepted public market/order-book reads only; no wallet connection, order or balance lookup.",
+  "fixture": false,
+  "pageErrors": [],
+  "marketCount": 40,
+  "mode": "Live",
+  "headline": "Know what your exit could return.",
+  "selectedMarket": "Will there be no change in Fed interest rates after the September 2026 meeting?",
+  "depthChart": 1,
+  "ticket": "Plan your exit\nSELL ONLY\nShares to sell\nBalance not loaded\nYes\n25%\n50%\n75%\nMax\nMinimum price\npUSD / share\n\nDo not sell below this price per share. Fees are deducted from the proceeds.\n\nIf only part can fill\nSell available\nCancel any remainder\nAll or nothing\nFill all shares or none\nEstimated net proceeds\n\n40.74pUSD\n\nGross proceeds\n42.50 pUSD\nEstimated venue fee\n1.76 pUSD\nCloseout fee\n0.00 pUSD\nShares that can fill\n250 / 250\nShares left unsold\n0\n\nExcludes network, intermediary and conversion costs.\n\nEstimate assumptions\n4\n\nConnect the wallet that owns your Polymarket account.\n\nLoad your Polymarket account address to review an exit.\n\nReview exit\n\nReview a fresh quote before authorizing an order.\n\nWhat does this estimate include?",
+  "screenshot": "docs/qa/closeout-live-desktop.png"
+}

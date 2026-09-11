@@ -1,0 +1,84 @@
+{
+  "startedAt": "2026-09-11T20:48:32.987Z",
+  "baseURL": "http://127.0.0.1:3000",
+  "browser": "Chromium",
+  "scope": "GET failure/empty fixtures and explicitly synthetic example orders. No wallet connection, signature, real balance, or real order.",
+  "checks": [
+    {
+      "name": "Live GET failure stays live, with no synthetic market or balance fallback",
+      "passed": true
+    },
+    {
+      "name": "Same-query Retry performs another GET; empty response remains empty",
+      "passed": true
+    },
+    {
+      "name": "Explicit Example mode exposes fictional data and a working market search",
+      "passed": true
+    },
+    {
+      "name": "Fraction controls and strict positive floor validation work",
+      "passed": true
+    },
+    {
+      "name": "FAK visibly estimates 140 / 250 fillable and 110 unsold",
+      "passed": true
+    },
+    {
+      "name": "FOK blocks insufficient full depth; keyboard returns to FAK",
+      "passed": true
+    },
+    {
+      "name": "Depth table and chart show the supplied order book",
+      "passed": true
+    },
+    {
+      "name": "Wallet dialog opens, Escape closes, focus returns; no connection is requested",
+      "passed": true
+    },
+    {
+      "name": "Review supports back/Escape, then explicitly simulates one partial exit",
+      "passed": true
+    },
+    {
+      "name": "Activity export preserves example attribution and empty real transaction hashes",
+      "passed": true
+    },
+    {
+      "name": "Tablet 768px layout has no horizontal overflow",
+      "passed": true
+    },
+    {
+      "name": "Mobile 375px Exit / Markets / Activity remain usable with no horizontal overflow",
+      "passed": true
+    },
+    {
+      "name": "No uncaught browser errors or non-GET API actions occurred",
+      "passed": true
+    }
+  ],
+  "screenshots": [
+    "docs/qa/closeout-live-error-fixture-desktop.png",
+    "docs/qa/closeout-example-desktop.png",
+    "docs/qa/closeout-example-fok-blocked-desktop.png",
+    "docs/qa/closeout-wallet-dialog-desktop.png",
+    "docs/qa/closeout-review-desktop.png",
+    "docs/qa/closeout-activity-desktop.png",
+    "docs/qa/closeout-example-tablet.png",
+    "docs/qa/closeout-example-mobile.png",
+    "docs/qa/closeout-review-mobile.png",
+    "docs/qa/closeout-markets-mobile.png",
+    "docs/qa/closeout-activity-mobile.png"
+  ],
+  "pageErrors": [],
+  "unexpectedWrites": [],
+  "consoleErrors": [
+    "Failed to load resource: the server responded with a status of 503 (Service Unavailable)",
+    "Failed to load resource: the server responded with a status of 503 (Service Unavailable)",
+    "Failed to load resource: the server responded with a status of 503 (Service Unavailable)",
+    "Failed to load resource: the server responded with a status of 503 (Service Unavailable)"
+  ],
+  "passed": true,
+  "finishedAt": "2026-09-11T20:48:35.289Z",
+  "marketFixtureRequests": 4
+}

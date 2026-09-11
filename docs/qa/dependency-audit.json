@@ -1,0 +1,388 @@
+{
+  "checkedAt": "2026-09-11T20:39:52.561Z",
+  "counts": {
+    "info": 0,
+    "low": 0,
+    "moderate": 23,
+    "high": 0,
+    "critical": 0,
+    "total": 23
+  },
+  "advisories": [
+    {
+      "name": "@gemini-wallet/core",
+      "severity": "moderate",
+      "isDirect": false,
+      "range": "*",
+      "via": [
+        "@metamask/rpc-errors"
+      ],
+      "fixAvailable": {
+        "name": "@privy-io/react-auth",
+        "version": "3.6.1",
+        "isSemVerMajor": true
+      }
+    },
+    {
+      "name": "@metamask/rpc-errors",
+      "severity": "moderate",
+      "isDirect": false,
+      "range": ">=6.3.1",
+      "via": [
+        "@metamask/utils"
+      ],
+      "fixAvailable": {
+        "name": "@privy-io/react-auth",
+        "version": "3.6.1",
+        "isSemVerMajor": true
+      }
+    },
+    {
+      "name": "@metamask/sdk",
+      "severity": "moderate",
+      "isDirect": false,
+      "range": "*",
+      "via": [
+        "@metamask/sdk-communication-layer",
+        "uuid"
+      ],
+      "fixAvailable": {
+        "name": "@privy-io/react-auth",
+        "version": "3.6.1",
+        "isSemVerMajor": true
+      }
+    },
+    {
+      "name": "@metamask/sdk-communication-layer",
+      "severity": "moderate",
+      "isDirect": false,
+      "range": "*",
+      "via": [
+        "uuid"
+      ],
+      "fixAvailable": {
+        "name": "@privy-io/react-auth",
+        "version": "3.6.1",
+        "isSemVerMajor": true
+      }
+    },
+    {
+      "name": "@metamask/utils",
+      "severity": "moderate",
+      "isDirect": false,
+      "range": ">=8.4.0",
+      "via": [
+        "uuid"
+      ],
+      "fixAvailable": {
+        "name": "@privy-io/react-auth",
+        "version": "3.6.1",
+        "isSemVerMajor": true
+      }
+    },
+    {
+      "name": "@privy-io/react-auth",
+      "severity": "moderate",
+      "isDirect": true,
+      "range": ">=3.7.0",
+      "via": [
+        "x402"
+      ],
+      "fixAvailable": {
+        "name": "@privy-io/react-auth",
+        "version": "3.6.1",
+        "isSemVerMajor": true
+      }
+    },
+    {
+      "name": "@reown/appkit",
+      "severity": "moderate",
+      "isDirect": false,
+      "range": "<=1.8.8",
+      "via": [
+        "@reown/appkit-controllers",
+        "@reown/appkit-pay",
+        "@reown/appkit-scaffold-ui",
+        "@reown/appkit-ui",
+        "@reown/appkit-utils",
+        "@walletconnect/universal-provider"
+      ],
+      "fixAvailable": {
+        "name": "@privy-io/react-auth",
+        "version": "3.6.1",
+        "isSemVerMajor": true
+      }
+    },
+    {
+      "name": "@reown/appkit-controllers",
+      "severity": "moderate",
+      "isDirect": false,
+      "range": "<=1.8.8",
+      "via": [
+        "@walletconnect/universal-provider"
+      ],
+      "fixAvailable": {
+        "name": "@privy-io/react-auth",
+        "version": "3.6.1",
+        "isSemVerMajor": true
+      }
+    },
+    {
+      "name": "@reown/appkit-pay",
+      "severity": "moderate",
+      "isDirect": false,
+      "range": "<=1.8.8",
+      "via": [
+        "@reown/appkit-controllers",
+        "@reown/appkit-ui",
+        "@reown/appkit-utils"
+      ],
+      "fixAvailable": {
+        "name": "@privy-io/react-auth",
+        "version": "3.6.1",
+        "isSemVerMajor": true
+      }
+    },
+    {
+      "name": "@reown/appkit-scaffold-ui",
+      "severity": "moderate",
+      "isDirect": false,
+      "range": "<=1.8.8",
+      "via": [
+        "@reown/appkit-controllers",
+        "@reown/appkit-ui",
+        "@reown/appkit-utils"
+      ],
+      "fixAvailable": {
+        "name": "@privy-io/react-auth",
+        "version": "3.6.1",
+        "isSemVerMajor": true
+      }
+    },
+    {
+      "name": "@reown/appkit-ui",
+      "severity": "moderate",
+      "isDirect": false,
+      "range": "1.7.1-449657bc8f95adcfd295a2e883c4bcd439045044.0 - 1.8.8",
+      "via": [
+        "@reown/appkit-controllers"
+      ],
+      "fixAvailable": {
+        "name": "@privy-io/react-auth",
+        "version": "3.6.1",
+        "isSemVerMajor": true
+      }
+    },
+    {
+      "name": "@reown/appkit-utils",
+      "severity": "moderate",
+      "isDirect": false,
+      "range": "<=1.8.8",
+      "via": [
+        "@reown/appkit-controllers",
+        "@walletconnect/universal-provider"
+      ],
+      "fixAvailable": {
+        "name": "@privy-io/react-auth",
+        "version": "3.6.1",
+        "isSemVerMajor": true
+      }
+    },
+    {
+      "name": "@wagmi/connectors",
+      "severity": "moderate",
+      "isDirect": false,
+      "range": "<=0.2.7 || 0.3.10-cjs - 4.0.0-rc.3 || 4.0.1 - 7.2.1",
+      "via": [
+        "@gemini-wallet/core",
+        "@metamask/sdk",
+        "@walletconnect/ethereum-provider"
+      ],
+      "fixAvailable": {
+        "name": "@privy-io/react-auth",
+        "version": "3.6.1",
+        "isSemVerMajor": true
+      }
+    },
+    {
+      "name": "@walletconnect/core",
+      "severity": "moderate",
+      "isDirect": false,
+      "range": "1.2.3-1.3.0-rc.0.0 - 2.17.5-rc-1 || 2.18.0-canary-tvf-1 - 2.21.8",
+      "via": [
+        "@walletconnect/utils"
+      ],
+      "fixAvailable": {
+        "name": "@privy-io/react-auth",
+        "version": "3.6.1",
+        "isSemVerMajor": true
+      }
+    },
+    {
+      "name": "@walletconnect/ethereum-provider",
+      "severity": "moderate",
+      "isDirect": false,
+      "range": "<=2.17.5-rc-1 || 2.18.0-canary-ak-1 - 2.21.10",
+      "via": [
+        "@reown/appkit",
+        "@walletconnect/sign-client",
+        "@walletconnect/universal-provider",
+        "@walletconnect/utils"
+      ],
+      "fixAvailable": {
+        "name": "@privy-io/react-auth",
+        "version": "3.6.1",
+        "isSemVerMajor": true
+      }
+    },
+    {
+      "name": "@walletconnect/sign-client",
+      "severity": "moderate",
+      "isDirect": false,
+      "range": "<=2.17.5-rc-1 || 2.18.0-canary-tvf-1 - 2.21.8",
+      "via": [
+        "@walletconnect/core",
+        "@walletconnect/utils"
+      ],
+      "fixAvailable": {
+        "name": "@privy-io/react-auth",
+        "version": "3.6.1",
+        "isSemVerMajor": true
+      }
+    },
+    {
+      "name": "@walletconnect/universal-provider",
+      "severity": "moderate",
+      "isDirect": false,
+      "range": "<=2.17.5-rc-1 || 2.18.0-canary-tvf-1 - 2.21.8",
+      "via": [
+        "@walletconnect/sign-client",
+        "@walletconnect/utils"
+      ],
+      "fixAvailable": {
+        "name": "@privy-io/react-auth",
+        "version": "3.6.1",
+        "isSemVerMajor": true
+      }
+    },
+    {
+      "name": "@walletconnect/utils",
+      "severity": "moderate",
+      "isDirect": false,
+      "range": "1.2.3-1.3.0-rc.0.0 - 2.17.5-rc-1 || 2.18.0-canary-ell-1 - 2.21.8",
+      "via": [
+        "query-string"
+      ],
+      "fixAvailable": {
+        "name": "@privy-io/react-auth",
+        "version": "3.6.1",
+        "isSemVerMajor": true
+      }
+    },
+    {
+      "name": "decode-uri-component",
+      "severity": "moderate",
+      "isDirect": false,
+      "range": "<=0.4.2",
+      "via": [
+        {
+          "source": 1147955,
+          "name": "decode-uri-component",
+          "dependency": "decode-uri-component",
+          "title": "decode-uri-component: Denial of service via exponential decoding of malformed percent-encoded input",
+          "url": "https://github.com/advisories/GHSA-vcc3-ghjq-m6fr",
+          "severity": "moderate",
+          "cwe": [
+            "CWE-400",
+            "CWE-405",
+            "CWE-407",
+            "CWE-1176"
+          ],
+          "cvss": {
+            "score": 0,
+            "vectorString": null
+          },
+          "range": "<=0.4.2"
+        }
+      ],
+      "fixAvailable": {
+        "name": "@privy-io/react-auth",
+        "version": "3.6.1",
+        "isSemVerMajor": true
+      }
+    },
+    {
+      "name": "query-string",
+      "severity": "moderate",
+      "isDirect": false,
+      "range": "5.0.0 - 9.4.1",
+      "via": [
+        "decode-uri-component"
+      ],
+      "fixAvailable": {
+        "name": "@privy-io/react-auth",
+        "version": "3.6.1",
+        "isSemVerMajor": true
+      }
+    },
+    {
+      "name": "uuid",
+      "severity": "moderate",
+      "isDirect": false,
+      "range": "<11.1.1",
+      "via": [
+        {
+          "source": 1119441,
+          "name": "uuid",
+          "dependency": "uuid",
+          "title": "uuid: Missing buffer bounds check in v3/v5/v6 when buf is provided",
+          "url": "https://github.com/advisories/GHSA-w5hq-g745-h8pq",
+          "severity": "moderate",
+          "cwe": [
+            "CWE-787",
+            "CWE-1285"
+          ],
+          "cvss": {
+            "score": 7.5,
+            "vectorString": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:H/A:N"
+          },
+          "range": "<11.1.1"
+        }
+      ],
+      "fixAvailable": {
+        "name": "@privy-io/react-auth",
+        "version": "3.6.1",
+        "isSemVerMajor": true
+      }
+    },
+    {
+      "name": "wagmi",
+      "severity": "moderate",
+      "isDirect": false,
+      "range": "<=0.0.0-wc-links-20240926225814 || 2.0.0-alpha.0 - 2.0.0-rc.3 || 2.0.1 - 3.5.0",
+      "via": [
+        "@wagmi/connectors"
+      ],
+      "fixAvailable": {
+        "name": "@privy-io/react-auth",
+        "version": "3.6.1",
+        "isSemVerMajor": true
+      }
+    },
+    {
+      "name": "x402",
+      "severity": "moderate",
+      "isDirect": false,
+      "range": ">=0.4.2",
+      "via": [
+        "wagmi"
+      ],
+      "fixAvailable": {
+        "name": "@privy-io/react-auth",
+        "version": "3.6.1",
+        "isSemVerMajor": true
+      }
+    }
+  ],
+  "note": "High severity axios and ws transitive findings resolved using bounded patch overrides. Remaining23moderate findings largely in optional wallet connector stack. No forced breaking downgrade applied."
+}

@@ -1,0 +1,62 @@
+{
+  "saved_at": "2026-09-11T20:49:12.989692+00:00",
+  "headline": "Know what your exit could return.",
+  "browser_smoke_passed": true,
+  "browser_smoke_finished_at": "2026-09-11T20:48:35.289Z",
+  "passing_checks": 13,
+  "page_errors": [],
+  "unexpected_non_get_requests": [],
+  "typecheck": "passed",
+  "files": {
+    "src/components/exit-workspace.tsx": "f3bd3a7263c711e727013e7f863616a12b95aa82c0c49c82fc960b2ce718d5a1",
+    "src/components/exit-workspace.css": "c7b3a7b8d42a3a01b8d01f65ca89d813f4dcd31548aa59accc6b5f1fefd5feee",
+    "scripts/browser-smoke.mjs": "e96fe4456ee1e106deeee4148aa7d66b301eb9633218965708bcc6083b3a5de0",
+    "docs/design-brief.md": "17f491b41e58ad6cd8663ed55db0ac16b6da4fbcaac356809238da5ec5b5fd43"
+  },
+  "screenshots": [
+    "docs/qa/closeout-live-error-fixture-desktop.png",
+    "docs/qa/closeout-example-desktop.png",
+    "docs/qa/closeout-example-fok-blocked-desktop.png",
+    "docs/qa/closeout-wallet-dialog-desktop.png",
+    "docs/qa/closeout-review-desktop.png",
+    "docs/qa/closeout-activity-desktop.png",
+    "docs/qa/closeout-example-tablet.png",
+    "docs/qa/closeout-example-mobile.png",
+    "docs/qa/closeout-review-mobile.png",
+    "docs/qa/closeout-markets-mobile.png",
+    "docs/qa/closeout-activity-mobile.png",
+    "docs/qa/closeout-live-desktop.png"
+  ],
+  "screenshot_sha256": {
+    "docs/qa/closeout-live-error-fixture-desktop.png": "d5822660b620a6164e8f9f4fe823d273a12dfbe44e25e367c013c1d7d5f7e784",
+    "docs/qa/closeout-example-desktop.png": "5ecb586f36d17d3902a63f9f764956e75c2e4b7581eb1542e1f80ff92b54a882",
+    "docs/qa/closeout-example-fok-blocked-desktop.png": "a672fc236af85873c5a039c5ab851d6e8218fdb5d6a1e6795c0a2ddfd2673d9a",
+    "docs/qa/closeout-wallet-dialog-desktop.png": "0c4b234174a8e350fbd43e9032df3456ab25881a11fa55a8c9deb1b8e22d3b8b",
+    "docs/qa/closeout-review-desktop.png": "a4aa70f9863a133992796409aa6a6462d360b54abd5e546264f9e7cbaf7ed363",
+    "docs/qa/closeout-activity-desktop.png": "24e96868fd24854c4eb678a638ec26d3717696ddaa87c7688676e72587d265eb",
+    "docs/qa/closeout-example-tablet.png": "16c58327854b2244e2efc7a05c8aeade20c5c0f80385cc5dfa6e23cf1aaee2eb",
+    "docs/qa/closeout-example-mobile.png": "c621370202adc14017f509449c233a007f4d1162c4f4bf41d7cd76b7c6fbb854",
+    "docs/qa/closeout-review-mobile.png": "c30dbe6a5cfdde3725b7fd2bc08af059e19601aad0a3de852e1e0820b9e07b9f",
+    "docs/qa/closeout-markets-mobile.png": "26be8b737e6a3af16a0ec544f382c130299b3ea5bcd30e3df56055e2d71be796",
+    "docs/qa/closeout-activity-mobile.png": "b83eb5f083f306aa9f13a9535f07a930956fe3ed6287af5a42b557eb049cd3d7",
+    "docs/qa/closeout-live-desktop.png": "57b506aefe2e7251d6e6ac9be319253d838c11495f24222c7324620ead5108f5"
+  },
+  "visually_inspected_widths": [
+    1280,
+    768,
+    375
+  ],
+  "live_public_read": {
+    "fixture": false,
+    "markets": 40,
+    "depth_chart": 1,
+    "page_errors": [],
+    "finished_at": "2026-09-11T20:48:45.176Z"
+  },
+  "live_trade_or_wallet_interaction": false,
+  "limits": [
+    "HTTP failures in smoke are fixtures, not actual upstream observations.",
+    "Separate unintercepted public-read report found 40 markets and a real book.",
+    "No live signing, execution, cancel or final proceeds reconciliation tested."
+  ]
+}
