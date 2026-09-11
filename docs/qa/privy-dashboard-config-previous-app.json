@@ -1,0 +1,9 @@
+{
+  "checkedAt": "2026-09-11T21:03:36.443Z",
+  "source": "https://auth.privy.io/api/v1/apps/cmtxfl71h00hj0cl5lvwb4kp8",
+  "status": 200,
+  "id": "cmtxfl71h00hj0cl5lvwb4kp8",
+  "name": "app",
+  "wallet_auth": true,
+  "allowed_domains": []
+}

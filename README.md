@@ -38,9 +38,9 @@ For a production server: `npm run build` followed by `npm start`. The public API
 
 ## Privy setup
 
-This local workspace now has the public App ID configured in an ignored `.env.local`. The real Privy chooser has been tested without selecting or connecting a wallet. Dashboard name and allowed origins are tracked in [owner actions](ACTION-REQUIRED.md).
+The current Privy app is **Closeout**, public App ID `cmtxg359900sd0cjp3cacl9m6`, configured in the ignored `.env.local`. Its public configuration verifies wallet authentication and exactly `http://localhost:3000` and `http://127.0.0.1:3000` as allowed origins. Dashboard name and local origin setup are complete. All four real Privy modal smoke checks and the production build passed with this new app; [setup history](docs/privy-setup.md) distinguishes it from the earlier app used to diagnose the dialog overlap.
 
-For another checkout, copy `.env.example` to `.env.local`, then set `NEXT_PUBLIC_PRIVY_APP_ID` to your **public app ID**. Allow your localhost/deployment origin in the Privy dashboard. No app secret belongs in this repository or a `NEXT_PUBLIC_` variable. Restart the server after changing environment variables.
+For another checkout, copy `.env.example` to `.env.local`, then set `NEXT_PUBLIC_PRIVY_APP_ID` to your **public app ID**. Allow your localhost/deployment origin in the Privy dashboard. No app secret belongs in this repository or a `NEXT_PUBLIC_` variable. The secret exposed in conversation is unused by Closeout and should be revoked in Privy; no replacement is needed. Restart the server after changing environment variables.
 
 Without this ID, Closeout uses an injected Ethereum wallet. With it, Privy connects an existing external owner wallet; it does not create an unrelated embedded wallet and pretend that wallet owns an existing Polymarket portfolio. A real configured Privy flow must be demonstrated before claiming sponsor-track eligibility.
 
@@ -56,7 +56,7 @@ The displayed floor is **gross pUSD per share**. It is not an after-fee net rece
 
 Public market, depth, metadata, empty public position lookup, and browser geographic reads have been exercised against live endpoints. Core calculations, response normalization, order reconciliation and trading service safeguards have automated tests. Desktop/tablet/mobile example flows have browser QA artifacts in `docs/qa/`.
 
-**No real wallet was connected, and no real order, approval, deposit or withdrawal was sent during this build.** End-to-end authenticated wallet execution still requires the account owner's explicit test. Privy's public configuration and chooser open/dismiss/reopen flow have been verified; see `docs/qa/privy-integration-current.json`. The service is implemented; a successful real trade is not claimed.
+**No real wallet was connected, and no real order, approval, deposit or withdrawal was sent during this build.** End-to-end authenticated wallet execution still requires the account owner's explicit test. The new Closeout app's public Privy configuration and chooser open/dismiss/reopen flow are verified in `docs/qa/privy-integration-current.json`. The service is implemented; a successful real trade is not claimed.
 
 If a submission loses its response, do not retry. Closeout keeps that account locked until the order outcome is known. An unknown intent without an order ID currently needs manual inspection on Polymarket; there is intentionally no casual “clear and retry” button. Live submission requires Web Locks on HTTPS or localhost. Corrupt history blocks execution, and unresolved records cannot be evicted by newer terminal history. Browser-local metadata can be erased by the user or browser, so also verify venue history after changing devices or clearing storage.
 

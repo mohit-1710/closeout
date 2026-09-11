@@ -1,5 +1,5 @@
 {
-  "startedAt": "2026-09-11T21:06:23.338Z",
+  "startedAt": "2026-09-11T20:59:09.988Z",
   "baseURL": "http://127.0.0.1:3000",
   "browser": "isolated Chromium",
   "scope": "Actual public Privy configuration and wallet chooser open, dismiss, reopen. No wallet selected; no injected provider, login, link, signature, or trade. Only anonymous Privy analytics POSTs are allowed.",
@@ -23,29 +23,23 @@
   ],
   "publicAppConfigs": [
     {
-      "capturedAt": "2026-09-11T21:06:25.142Z",
-      "url": "https://auth.privy.io/api/v1/apps/cmtxg359900sd0cjp3cacl9m6",
+      "capturedAt": "2026-09-11T20:59:10.505Z",
+      "url": "https://auth.privy.io/api/v1/apps/cmtxfl71h00hj0cl5lvwb4kp8",
       "status": 200,
-      "id": "cmtxg359900sd0cjp3cacl9m6",
-      "name": "Closeout",
+      "id": "cmtxfl71h00hj0cl5lvwb4kp8",
+      "name": "app",
       "wallet_auth": true,
-      "allowed_domains": [
-        "http://localhost:3000",
-        "http://127.0.0.1:3000"
-      ],
+      "allowed_domains": [],
       "logo_url": null
     },
     {
-      "capturedAt": "2026-09-11T21:06:25.142Z",
-      "url": "https://auth.privy.io/api/v1/apps/cmtxg359900sd0cjp3cacl9m6",
+      "capturedAt": "2026-09-11T20:59:10.551Z",
+      "url": "https://auth.privy.io/api/v1/apps/cmtxfl71h00hj0cl5lvwb4kp8",
       "status": 200,
-      "id": "cmtxg359900sd0cjp3cacl9m6",
-      "name": "Closeout",
+      "id": "cmtxfl71h00hj0cl5lvwb4kp8",
+      "name": "app",
       "wallet_auth": true,
-      "allowed_domains": [
-        "http://localhost:3000",
-        "http://127.0.0.1:3000"
-      ],
+      "allowed_domains": [],
       "logo_url": null
     }
   ],
@@ -60,7 +54,7 @@
     {
       "method": "POST",
       "host": "auth.privy.io",
-      "path": "/cdn-cgi/challenge-platform/h/g/jsd/oneshot/330e41bb475c/0.354131245762384:1789157120:gRxBFmAZo7tp899TLJ29v2JxwXz9Uug5a63iTo_j_hA/a399a2dbbfd8e624"
+      "path": "/cdn-cgi/challenge-platform/h/g/jsd/oneshot/330e41bb475c/0.354131245762384:1789157120:gRxBFmAZo7tp899TLJ29v2JxwXz9Uug5a63iTo_j_hA/a399983f38823df7"
     }
   ],
   "pageErrors": [],
@@ -68,8 +62,8 @@
     "Failed to load resource: net::ERR_BLOCKED_BY_CLIENT.Inspector"
   ],
   "screenshots": [
-    "docs/qa/privy-integration-current-chooser-open.png",
-    "docs/qa/privy-integration-current-chooser-reopened.png"
+    "docs/qa/privy-integration-previous-app-chooser-open.png",
+    "docs/qa/privy-integration-previous-app-chooser-reopened.png"
   ],
   "sourceHashes": {
     "src/components/wallet-provider.tsx": "acbaf245634054e83c6cecab1d57808f716f6c3de7486d3dd91266207e9f3a97",
@@ -78,5 +72,6 @@
   },
   "nativeDialogsAtChooser": 0,
   "passed": true,
-  "finishedAt": "2026-09-11T21:06:27.741Z"
+  "finishedAt": "2026-09-11T20:59:13.464Z",
+  "archiveNote": "Historical successful chooser check against the previous app. Screenshot paths updated to preserved archive filenames."
 }

@@ -1,9 +1,12 @@
 {
-  "checkedAt": "2026-09-11T21:03:36.443Z",
-  "source": "https://auth.privy.io/api/v1/apps/cmtxfl71h00hj0cl5lvwb4kp8",
+  "checkedAt": "2026-09-11T21:06:11.140Z",
+  "source": "https://auth.privy.io/api/v1/apps/cmtxg359900sd0cjp3cacl9m6",
   "status": 200,
-  "id": "cmtxfl71h00hj0cl5lvwb4kp8",
-  "name": "app",
+  "id": "cmtxg359900sd0cjp3cacl9m6",
+  "name": "Closeout",
   "wallet_auth": true,
-  "allowed_domains": []
+  "allowed_domains": [
+    "http://localhost:3000",
+    "http://127.0.0.1:3000"
+  ]
 }
