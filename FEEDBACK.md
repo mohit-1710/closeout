@@ -15,3 +15,7 @@ Browser QA found the SDK declaration/runtime export mismatch for AssetType; impo
 Independent review found and fixed account lookup races, session binding across provider awaits, overlapping cancellation, corruption of saved history, missing trade references incorrectly becoming terminal, and a live partial remainder no longer being polled. Cross-tab account locks now cover the final history check through persisted order response; history writes are serialized separately. Pending records survive terminal-history pruning; capacity exhaustion fails closed.
 
 Tests cover decimal estimation, public-response identity and precision, order/fill reconciliation, stored-history integrity and retention, and mocked wallet/trading-service safeguards. Browser tests use explicit fictional fills and GET fixtures. Actual public reads were also tested separately. No live wallet execution is claimed.
+
+## Privy activation — September 12 IST
+
+After Mohit signed in through Brave, the public App ID was read from the app dashboard and configured locally. Actual SDK initialization exposed a modal-layer bug: Closeout’s native wallet dialog made Privy’s separate chooser inaccessible. The Connect action now closes the native dialog synchronously before opening Privy. An isolated browser test verifies the chooser opens, dismisses and reopens; no wallet is selected and all auth/link/order writes are blocked. No app secret was retrieved or added. Native Brave input/window failures left dashboard name and allowed origins pending manual completion.

@@ -1,17 +1,34 @@
 {
-  "saved_at": "2026-09-11T20:49:12.989692+00:00",
+  "saved_at": "2026-09-11T21:04:21.645793+00:00",
   "headline": "Know what your exit could return.",
+  "scope": "Configured Privy compatibility update to the browser test harness; no product UI edits by this task. Eleven fixture/example screenshots refreshed; earlier public live read remains separately dated.",
   "browser_smoke_passed": true,
-  "browser_smoke_finished_at": "2026-09-11T20:48:35.289Z",
+  "browser_smoke_finished_at": "2026-09-11T21:02:06.583Z",
+  "passing_browser_checks": 13,
   "passing_checks": 13,
+  "route_guard_cases": 12,
   "page_errors": [],
-  "unexpected_non_get_requests": [],
-  "typecheck": "passed",
+  "unexpected_action_write_attempts": [],
+  "blocked_initialization_analytics": [
+    {
+      "method": "POST",
+      "host": "auth.privy.io",
+      "path": "/api/v1/analytics_events"
+    }
+  ],
+  "blocked_cdn_background_requests": [
+    {
+      "method": "GET",
+      "host": "auth.privy.io",
+      "path": "/cdn-cgi/challenge-platform/[redacted]"
+    }
+  ],
   "files": {
-    "src/components/exit-workspace.tsx": "f3bd3a7263c711e727013e7f863616a12b95aa82c0c49c82fc960b2ce718d5a1",
+    "src/components/exit-workspace.tsx": "0774f856ce28dd5ab1c59377e46a9055a7c8cde7839c965aeee994a3f7918ff7",
     "src/components/exit-workspace.css": "c7b3a7b8d42a3a01b8d01f65ca89d813f4dcd31548aa59accc6b5f1fefd5feee",
-    "scripts/browser-smoke.mjs": "e96fe4456ee1e106deeee4148aa7d66b301eb9633218965708bcc6083b3a5de0",
-    "docs/design-brief.md": "17f491b41e58ad6cd8663ed55db0ac16b6da4fbcaac356809238da5ec5b5fd43"
+    "src/components/wallet-provider.tsx": "acbaf245634054e83c6cecab1d57808f716f6c3de7486d3dd91266207e9f3a97",
+    "scripts/browser-smoke.mjs": "f62b996bdb506cb9f663a443438f49039d1c58507a346c7b6b328647f42d4fa5",
+    "docs/qa/README.md": "f84997e3c130dd2712f7d98042d6e9aa572c0285222e76c512a2587d9d04f901"
   },
   "screenshots": [
     "docs/qa/closeout-live-error-fixture-desktop.png",
@@ -29,34 +46,36 @@
   ],
   "screenshot_sha256": {
     "docs/qa/closeout-live-error-fixture-desktop.png": "d5822660b620a6164e8f9f4fe823d273a12dfbe44e25e367c013c1d7d5f7e784",
-    "docs/qa/closeout-example-desktop.png": "5ecb586f36d17d3902a63f9f764956e75c2e4b7581eb1542e1f80ff92b54a882",
-    "docs/qa/closeout-example-fok-blocked-desktop.png": "a672fc236af85873c5a039c5ab851d6e8218fdb5d6a1e6795c0a2ddfd2673d9a",
-    "docs/qa/closeout-wallet-dialog-desktop.png": "0c4b234174a8e350fbd43e9032df3456ab25881a11fa55a8c9deb1b8e22d3b8b",
-    "docs/qa/closeout-review-desktop.png": "a4aa70f9863a133992796409aa6a6462d360b54abd5e546264f9e7cbaf7ed363",
-    "docs/qa/closeout-activity-desktop.png": "24e96868fd24854c4eb678a638ec26d3717696ddaa87c7688676e72587d265eb",
-    "docs/qa/closeout-example-tablet.png": "16c58327854b2244e2efc7a05c8aeade20c5c0f80385cc5dfa6e23cf1aaee2eb",
-    "docs/qa/closeout-example-mobile.png": "c621370202adc14017f509449c233a007f4d1162c4f4bf41d7cd76b7c6fbb854",
-    "docs/qa/closeout-review-mobile.png": "c30dbe6a5cfdde3725b7fd2bc08af059e19601aad0a3de852e1e0820b9e07b9f",
+    "docs/qa/closeout-example-desktop.png": "a607f8caaea5aab8743773257d3717f55617b29685d578ad8dfe4b77a6906479",
+    "docs/qa/closeout-example-fok-blocked-desktop.png": "e4698d918ebf5251eb16892576931c57dd795d106fa36408aa50f37ebf7bb720",
+    "docs/qa/closeout-wallet-dialog-desktop.png": "f79d83302454d5c0953650a7b85492eb824f849c718d44ca5212d644aa7eff1f",
+    "docs/qa/closeout-review-desktop.png": "9ff96277d68913e7f07dc7ed2d88b10f99260c70ccf6168f74df5fd8c59ae755",
+    "docs/qa/closeout-activity-desktop.png": "3ac8f5a8fbdbcf585ac570f63d5ea7b780b117c1dd50855edde48fe4f007bf94",
+    "docs/qa/closeout-example-tablet.png": "6b4ef370372542c9c68e050d6c7c75ca9def40058a0dc2e10cd36a304508174b",
+    "docs/qa/closeout-example-mobile.png": "28e18623f065fdf021031144c177eeadbe37f33abca947e9b2accb30752a04c7",
+    "docs/qa/closeout-review-mobile.png": "2f662ef28589be5576e639e481ee74950d75467cbcd3e9f935a0a47dbea6e485",
     "docs/qa/closeout-markets-mobile.png": "26be8b737e6a3af16a0ec544f382c130299b3ea5bcd30e3df56055e2d71be796",
     "docs/qa/closeout-activity-mobile.png": "b83eb5f083f306aa9f13a9535f07a930956fe3ed6287af5a42b557eb049cd3d7",
     "docs/qa/closeout-live-desktop.png": "57b506aefe2e7251d6e6ac9be319253d838c11495f24222c7324620ead5108f5"
   },
-  "visually_inspected_widths": [
+  "responsive_widths_checked": [
     1280,
     768,
     375
   ],
-  "live_public_read": {
+  "earlier_live_public_read": {
     "fixture": false,
     "markets": 40,
     "depth_chart": 1,
     "page_errors": [],
-    "finished_at": "2026-09-11T20:48:45.176Z"
+    "finished_at": "2026-09-11T20:48:45.176Z",
+    "rerun_in_this_harness_update": false
   },
-  "live_trade_or_wallet_interaction": false,
+  "live_trade_or_wallet_authentication": false,
   "limits": [
     "HTTP failures in smoke are fixtures, not actual upstream observations.",
-    "Separate unintercepted public-read report found 40 markets and a real book.",
-    "No live signing, execution, cancel or final proceeds reconciliation tested."
+    "Privy initialization analytics and identified CDN background requests were blocked, not financial writes.",
+    "The native wallet shell is tested here; actual Privy chooser coverage is separate.",
+    "No auth, link, signing, execution, cancel, final proceeds reconciliation, or production allowed-origin validation tested."
   ]
 }

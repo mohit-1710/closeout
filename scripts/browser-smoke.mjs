@@ -11,8 +11,33 @@ const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const output = path.join(root, 'docs/qa');
 const baseURL = process.env.BASE_URL || 'http://127.0.0.1:3000';
 const report = { startedAt: new Date().toISOString(), baseURL, browser: 'Chromium',
-  scope: 'GET failure/empty fixtures and explicitly synthetic example orders. No wallet connection, signature, real balance, or real order.',
-  checks: [], screenshots: [], pageErrors: [], unexpectedWrites: [], consoleErrors: [] };
+  scope: 'GET failure/empty fixtures and explicitly synthetic example orders in an isolated context, compatible with configured Privy. No wallet connection, authentication, linking, signature, real balance, or real order. Exact anonymous Privy initialization analytics and known CDN background requests are blocked and recorded separately.',
+  checks: [], screenshots: [], pageErrors: [], unexpectedWrites: [], blockedInitializationAnalytics: [], blockedCdnBackground: [], consoleErrors: [] };
+
+function requestClass(method, target, hasAuthorization = false) {
+  const url = new URL(target);
+  if (url.origin === 'https://auth.privy.io' && url.pathname.startsWith('/cdn-cgi/challenge-platform/')) return 'cdn-background';
+  if (method === 'POST' && url.origin === 'https://auth.privy.io' && url.pathname === '/api/v1/analytics_events' && !url.search && !hasAuthorization) return 'anonymous-initialization';
+  return ['GET', 'HEAD', 'OPTIONS'].includes(method) ? 'read' : 'unexpected-write';
+}
+
+// Guard regressions must not turn a telemetry exception into an auth/order bypass.
+const guardCases = [
+  ['POST', 'https://auth.privy.io/api/v1/analytics_events', false, 'anonymous-initialization'],
+  ['POST', 'https://auth.privy.io/api/v1/analytics_events', true, 'unexpected-write'],
+  ['PUT', 'https://auth.privy.io/api/v1/analytics_events', false, 'unexpected-write'],
+  ['POST', 'https://auth.privy.io/api/v1/analytics_events/extra', false, 'unexpected-write'],
+  ['POST', 'https://auth.privy.io/api/v1/analytics_events?session=fixture', false, 'unexpected-write'],
+  ['POST', 'https://auth.privy.io.example.com/api/v1/analytics_events', false, 'unexpected-write'],
+  ['POST', 'https://auth.privy.io/api/v1/authenticate', false, 'unexpected-write'],
+  ['POST', 'https://auth.privy.io/api/v1/link', false, 'unexpected-write'],
+  ['POST', 'https://clob.polymarket.com/order', false, 'unexpected-write'],
+  ['POST', 'https://auth.privy.io/cdn-cgi/challenge-platform/h/g/jsd/oneshot/fixture', false, 'cdn-background'],
+  ['POST', 'https://clob.polymarket.com/cdn-cgi/order', false, 'unexpected-write'],
+  ['OPTIONS', 'https://auth.privy.io/api/v1/apps/fixture', false, 'read'],
+];
+for (const [method, target, auth, expected] of guardCases) assert.equal(requestClass(method, target, auth), expected);
+report.routeGuardChecks = guardCases.length;
 await mkdir(output, { recursive: true });
 const browser = await chromium.launch({ headless: true });
 const context = await browser.newContext({ viewport: { width: 1280, height: 1000 }, reducedMotion: 'reduce', acceptDownloads: true });
@@ -20,8 +45,19 @@ let marketResponse = 'error';
 let marketRequests = 0;
 await context.route('**/*', async (route) => {
   const request = route.request(), url = new URL(request.url());
-  if (!['GET', 'HEAD'].includes(request.method())) {
-    report.unexpectedWrites.push({ method: request.method(), path: url.pathname });
+  const kind = requestClass(request.method(), request.url(), Boolean(request.headers().authorization));
+  // Do not log request bodies, headers, query strings, or opaque challenge tokens.
+  const metadata = { method: request.method(), host: url.hostname, path: kind === 'cdn-background' ? '/cdn-cgi/challenge-platform/[redacted]' : url.pathname };
+  if (kind === 'anonymous-initialization') {
+    report.blockedInitializationAnalytics.push(metadata);
+    return route.abort('blockedbyclient');
+  }
+  if (kind === 'cdn-background') {
+    report.blockedCdnBackground.push(metadata);
+    return route.abort('blockedbyclient');
+  }
+  if (kind === 'unexpected-write') {
+    report.unexpectedWrites.push(metadata);
     return route.abort('blockedbyclient');
   }
   if (url.pathname === '/api/markets') {
@@ -209,7 +245,7 @@ try {
     await navigation.getByRole('tab', { name: 'Exit', exact: true }).click();
     await expect(ticket).toBeVisible();
   });
-  await check('No uncaught browser errors or non-GET API actions occurred', async () => {
+  await check('No uncaught browser errors or auth/link/order/financial write attempts occurred', async () => {
     assert.deepEqual(report.pageErrors, []);
     assert.deepEqual(report.unexpectedWrites, []);
   });

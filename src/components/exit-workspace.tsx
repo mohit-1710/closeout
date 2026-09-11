@@ -248,7 +248,14 @@ export function ExitWorkspace({ workspace: w }: ExitWorkspaceProps) {
     <dialog ref={walletRef} className="co-dialog" aria-labelledby={`${uid}-wallet-title`} onCancel={() => setWalletOpen(false)} onClose={() => setWalletOpen(false)}><div className="co-dialog-head"><h2 id={`${uid}-wallet-title`}>Your wallet & positions</h2><button className="co-icon-button" aria-label="Close wallet dialog" onClick={() => setWalletOpen(false)}><X size={18} aria-hidden /></button></div><div className="co-dialog-body">
       {w.mode === "example" && <div className="co-inline-notice" data-tone="warning"><FlaskConical size={15} aria-hidden />You are in example mode. Its balances and orders are synthetic.</div>}
       <div className="co-wallet-connect"><Wallet size={24} strokeWidth={1.5} aria-hidden /><div><strong>{w.walletStatus === "connected" ? "Wallet connected" : "Connect to authorize exits"}</strong><p>{w.accountAddress ? <span className="co-address">{w.accountAddress}</span> : "Inspect first. Your wallet approves any live order."}</p></div></div>
-      <button className="co-button co-wallet-connect-button" onClick={w.walletStatus === "connected" ? w.onDisconnect : w.onConnect} disabled={w.walletStatus === "connecting"} aria-busy={w.walletStatus === "connecting"}>{w.walletStatus === "connecting" && <LoaderCircle size={14} className="co-spin" aria-hidden />}{w.walletStatus === "connected" ? "Disconnect wallet" : w.connectLabel}</button>
+      <button className="co-button co-wallet-connect-button" onClick={() => {
+        if (w.walletStatus === "connected") { w.onDisconnect(); return; }
+        // A native modal makes Privy's separately mounted chooser inert. Release
+        // the top layer synchronously before handing focus to the wallet flow.
+        walletRef.current?.close();
+        setWalletOpen(false);
+        w.onConnect();
+      }} disabled={w.walletStatus === "connecting"} aria-busy={w.walletStatus === "connecting"}>{w.walletStatus === "connecting" && <LoaderCircle size={14} className="co-spin" aria-hidden />}{w.walletStatus === "connected" ? "Disconnect wallet" : w.connectLabel}</button>
       {w.walletError && <p role="alert" className="co-error-text">{w.walletError}</p>}
       <form className="co-wallet-form" onSubmit={(e) => { e.preventDefault(); w.onLoadPositions(); setListTab("positions"); setMobilePanel("markets"); setWalletOpen(false); }}><label htmlFor={`${uid}-address`}>Or inspect a public Polygon address</label><input id={`${uid}-address`} type="text" autoComplete="off" spellCheck={false} placeholder="0x…" value={w.accountInput} onChange={(e) => w.onAccountInputChange(e.target.value)} /><p>Read-only. Entering an address does not grant permission to trade its positions.</p><button className="co-button" type="submit" disabled={!w.accountInput.trim() || w.positionState === "loading"}>{w.positionState === "loading" ? "Loading positions…" : "Load positions"}<ArrowRight size={14} aria-hidden /></button></form>
     </div></dialog>

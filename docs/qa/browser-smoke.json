@@ -1,8 +1,8 @@
 {
-  "startedAt": "2026-09-11T20:48:32.987Z",
+  "startedAt": "2026-09-11T21:02:04.212Z",
   "baseURL": "http://127.0.0.1:3000",
   "browser": "Chromium",
-  "scope": "GET failure/empty fixtures and explicitly synthetic example orders. No wallet connection, signature, real balance, or real order.",
+  "scope": "GET failure/empty fixtures and explicitly synthetic example orders in an isolated context, compatible with configured Privy. No wallet connection, authentication, linking, signature, real balance, or real order. Exact anonymous Privy initialization analytics and known CDN background requests are blocked and recorded separately.",
   "checks": [
     {
       "name": "Live GET failure stays live, with no synthetic market or balance fallback",
@@ -53,7 +53,7 @@
       "passed": true
     },
     {
-      "name": "No uncaught browser errors or non-GET API actions occurred",
+      "name": "No uncaught browser errors or auth/link/order/financial write attempts occurred",
       "passed": true
     }
   ],
@@ -72,13 +72,30 @@
   ],
   "pageErrors": [],
   "unexpectedWrites": [],
+  "blockedInitializationAnalytics": [
+    {
+      "method": "POST",
+      "host": "auth.privy.io",
+      "path": "/api/v1/analytics_events"
+    }
+  ],
+  "blockedCdnBackground": [
+    {
+      "method": "GET",
+      "host": "auth.privy.io",
+      "path": "/cdn-cgi/challenge-platform/[redacted]"
+    }
+  ],
   "consoleErrors": [
     "Failed to load resource: the server responded with a status of 503 (Service Unavailable)",
     "Failed to load resource: the server responded with a status of 503 (Service Unavailable)",
     "Failed to load resource: the server responded with a status of 503 (Service Unavailable)",
-    "Failed to load resource: the server responded with a status of 503 (Service Unavailable)"
+    "Failed to load resource: the server responded with a status of 503 (Service Unavailable)",
+    "Failed to load resource: net::ERR_BLOCKED_BY_CLIENT.Inspector",
+    "Failed to load resource: net::ERR_BLOCKED_BY_CLIENT.Inspector"
   ],
+  "routeGuardChecks": 12,
   "passed": true,
-  "finishedAt": "2026-09-11T20:48:35.289Z",
+  "finishedAt": "2026-09-11T21:02:06.583Z",
   "marketFixtureRequests": 4
 }

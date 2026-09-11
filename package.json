@@ -8,7 +8,8 @@
     "start": "next start",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
-    "test:browser": "node scripts/browser-smoke.mjs"
+    "test:browser": "node scripts/browser-smoke.mjs",
+    "test:privy": "node scripts/privy-smoke.mjs"
   },
   "dependencies": {
     "@polymarket/bindings": "0.10.0",
