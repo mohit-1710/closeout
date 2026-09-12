@@ -1,6 +1,7 @@
 import Decimal from "decimal.js";
 import { CircleAlert, LoaderCircle } from "lucide-react";
-import { useEffect, useState, type ReactNode } from "react";
+import type { ReactNode } from "react";
+export { useClientReady } from "@/hooks/use-client-ready";
 
 export function decimal(value: string | number | null | undefined): Decimal | null {
   if (value == null || value === "") return null;
@@ -110,10 +111,4 @@ export function PositionSkeleton() {
       ))}
     </div>
   );
-}
-
-export function useClientReady() {
-  const [ready, setReady] = useState(false);
-  useEffect(() => setReady(true), []);
-  return ready;
 }

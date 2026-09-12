@@ -4,10 +4,12 @@ import Link from "next/link";
 import { ArrowRight, ArrowUpRight, Check, SlidersHorizontal } from "lucide-react";
 import { exampleBook } from "@/lib/example-data";
 import { buildQuote } from "@/lib/quote";
+import { useClientReady } from "@/hooks/use-client-ready";
 
 const snapshot = exampleBook("example-yes", 0);
 const prices = ["0.58", "0.60", "0.62"];
 export function ExitPreview() {
+  const ready = useClientReady();
   const [floor, setFloor] = useState("0.60");
   const quote = buildQuote(snapshot, "250", floor, "FAK", 0);
   return (
@@ -54,7 +56,12 @@ export function ExitPreview() {
         </div>
         <div className="preview-price-options" aria-label="Example minimum price per share">
           {prices.map((price) => (
-            <button key={price} aria-pressed={floor === price} onClick={() => setFloor(price)}>
+            <button
+              key={price}
+              disabled={!ready}
+              aria-pressed={floor === price}
+              onClick={() => setFloor(price)}
+            >
               {price}
             </button>
           ))}

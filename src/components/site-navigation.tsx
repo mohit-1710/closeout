@@ -4,8 +4,10 @@ import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { ArrowUpRight, Menu, X } from "lucide-react";
 import { CloseoutLogo } from "./brand";
+import { useClientReady } from "@/hooks/use-client-ready";
 
 export function SiteNavigation() {
+  const ready = useClientReady();
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
   const trigger = useRef<HTMLButtonElement>(null);
@@ -46,6 +48,7 @@ export function SiteNavigation() {
           </Link>
           <button
             ref={trigger}
+            disabled={!ready}
             className="site-menu-toggle"
             aria-label={open ? "Close navigation" : "Open navigation"}
             aria-expanded={open}
