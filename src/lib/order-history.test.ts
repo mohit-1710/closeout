@@ -26,9 +26,7 @@ describe("saved order history integrity", () => {
     expect(decodeOrderHistory("[]")).toEqual([]);
   });
   it("retains an unresolved intent", () =>
-    expect(decodeOrderHistory(JSON.stringify([record]))[0].status).toBe(
-      "unknown",
-    ));
+    expect(decodeOrderHistory(JSON.stringify([record]))[0].status).toBe("unknown"));
   it("never silently drops corrupt records", () => {
     for (const raw of [
       "broken",
@@ -40,13 +38,9 @@ describe("saved order history integrity", () => {
       expect(() => decodeOrderHistory(raw)).toThrow();
   });
   it("rejects duplicate order IDs", () =>
-    expect(() =>
-      decodeOrderHistory(JSON.stringify([record, record])),
-    ).toThrow());
+    expect(() => decodeOrderHistory(JSON.stringify([record, record]))).toThrow());
   it("rejects example history in the live store", () =>
-    expect(() =>
-      decodeOrderHistory(JSON.stringify([{ ...record, mode: "example" }])),
-    ).toThrow());
+    expect(() => decodeOrderHistory(JSON.stringify([{ ...record, mode: "example" }]))).toThrow());
 });
 
 describe("order history compaction", () => {
@@ -58,10 +52,7 @@ describe("order history compaction", () => {
   });
 
   it("preserves an old unknown intent among 100 newer terminal records", () => {
-    const orders = [
-      ...Array.from({ length: 100 }, (_, index) => completed(index + 2)),
-      record,
-    ];
+    const orders = [...Array.from({ length: 100 }, (_, index) => completed(index + 2)), record];
     const result = compactOrderHistory(orders);
     expect(result).toHaveLength(100);
     expect(result).toContain(record);
@@ -85,12 +76,13 @@ describe("order history compaction", () => {
     ]);
     expect(result).toHaveLength(100);
     for (const order of active) expect(result).toContain(order);
-    expect(result.filter((order) => order.status === "settled")).toHaveLength(
-      96,
-    );
+    expect(result.filter((order) => order.status === "settled")).toHaveLength(96);
     expect(result.map((order) => order.createdAt)).toEqual([
       ...Array.from({ length: 96 }, (_, index) => 101 - index),
-      1, 1, 1, 1,
+      1,
+      1,
+      1,
+      1,
     ]);
   });
 

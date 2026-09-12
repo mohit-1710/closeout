@@ -1,0 +1,8 @@
+node_modules/
+.next/
+.vercel/
+.artifacts/
+package-lock.json
+*.bak
+public/
+docs/images/

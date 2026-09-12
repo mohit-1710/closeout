@@ -1,27 +1,58 @@
 @import "tailwindcss";
 :root {
-  color-scheme: dark;
-  --background: #101512;
-  --surface: #171d19;
-  --raised: #202822;
-  --foreground: #f0f4ef;
-  --muted: #a5b2a7;
-  --accent: #c8ee8d;
-  --accent-ink: #192411;
-  --border: #334037;
-  --danger: #ffaaa3;
-  --warning: #f4cf83;
-  --font-sans: Arial, Helvetica, sans-serif;
-  --font-mono: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+  /* AgentTrust's selected palette; accessible supporting tones in brand.md. */
+  color-scheme: light;
+  --background: #fbfaf9;
+  --surface: #ffffff;
+  --raised: #f3f0f7;
+  --foreground: #0a0a0a;
+  --muted: #68646f;
+  --accent: #6f4cff;
+  --accent-hover: #5c39e8;
+  --accent-ink: #ffffff;
+  --accent-soft: #f0ebff;
+  --border: #dfdce4;
+  --input-border: #96909e;
+  --success: #1f7a3d;
+  --danger: #b63726;
+  --warning: #895e0c;
+  --warning-soft: #fff7e8;
+  --danger-soft: #fff0ed;
+  --font-sans: var(--font-geist-sans), Arial, Helvetica, sans-serif;
+  --font-mono: var(--font-geist-mono), "SFMono-Regular", Consolas, monospace;
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --space-10: 40px;
+  --space-12: 48px;
+  --space-16: 64px;
+  --space-20: 80px;
+  --space-24: 96px;
+  --page-gutter: clamp(20px, 4.5vw, 72px);
 }
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-sans);
-  --font-mono: var(--font-mono);
+  --color-surface: var(--surface);
+  --color-raised: var(--raised);
+  --color-muted: var(--muted);
+  --color-primary: var(--accent);
+  --color-primary-foreground: var(--accent-ink);
+  --color-line: var(--border);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
 }
 * {
   box-sizing: border-box;
+}
+html {
+  scroll-behavior: smooth;
+  scroll-padding-top: 100px;
 }
 body {
   margin: 0;
@@ -55,15 +86,38 @@ a {
   outline-offset: 4px;
 }
 ::selection {
-  background: var(--accent);
-  color: var(--accent-ink);
+  background: var(--accent-soft);
+  color: var(--foreground);
+}
+.closeout-logo {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  white-space: nowrap;
+  color: var(--foreground);
+}
+.closeout-logo svg {
+  width: 34px;
+  height: 34px;
+  color: var(--accent);
+  flex: 0 0 auto;
+}
+.closeout-logo-word {
+  font-family: var(--font-sans);
+  font-size: 26px;
+  font-weight: 600;
+  letter-spacing: -0.065em;
+  line-height: 1;
+}
+.closeout-logo-word > span {
+  color: var(--accent);
 }
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,
   *::after {
-    animation-duration: 0.01ms !important;
-    transition-duration: 0.01ms !important;
+    animation: none !important;
+    transition: none !important;
     scroll-behavior: auto !important;
   }
 }

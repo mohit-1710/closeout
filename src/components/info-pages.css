@@ -1,0 +1,619 @@
+@reference "../app/globals.css";
+/* Tailwind owns layout and type. Custom rules below retain the token-based book illustrations and native-details state. */
+.info-page {
+  @apply overflow-clip;
+}
+.info-page p {
+  @apply leading-[1.65];
+}
+.info-page .info-hero {
+  @apply pt-[clamp(64px,_8vw,_112px)] pb-[clamp(64px,_8vw,_112px)];
+}
+.info-page .info-hero-product {
+  @apply grid grid-cols-[1.08fr_.92fr] gap-[clamp(40px,_6vw,_88px)] items-center;
+}
+.info-page .info-heading {
+  @apply max-w-[14ch] text-[clamp(48px,_5.3vw,_76px)] leading-[1.04] tracking-[-.05em] m-[24px_0] font-normal;
+}
+.info-page .info-heading em {
+  font-weight: inherit;
+}
+.info-page .info-lead {
+  @apply max-w-[47ch] text-[19px] m-[0_0_32px];
+  color: var(--muted);
+}
+.info-page .info-actions {
+  @apply flex flex-wrap items-center gap-[20px_28px] mb-5;
+}
+.info-page .info-actions .site-text-link,
+.info-page .info-closing .site-text-link,
+.info-page .info-section .site-text-link,
+.info-page .info-step .site-text-link {
+  @apply inline-flex items-center gap-[10px] min-h-11;
+}
+.info-page .info-small {
+  @apply text-[13px];
+}
+.info-page .info-position-illustration {
+  @apply p-8 rounded-[8px];
+  background: var(--surface);
+  border: 1px solid var(--border);
+}
+.info-page .info-illustration-label {
+  @apply flex items-center gap-2 text-[12px];
+  color: var(--muted);
+}
+.info-page .info-example-dot {
+  @apply w-[6px] h-[6px] rounded-full flex-none;
+  background: var(--accent);
+}
+.info-page .info-market-name {
+  @apply m-[24px_0_32px] text-[21px] tracking-[-.025em] leading-[1.4]! max-w-[27ch];
+}
+.info-page .info-position-amount {
+  @apply flex justify-between items-baseline gap-4 mb-5;
+}
+.info-page .info-position-amount > span {
+  @apply text-[13px];
+  color: var(--muted);
+}
+.info-page .info-position-amount strong,
+.info-page .info-fill-legend strong,
+.info-page .info-illustration-foot strong,
+.info-page .info-book-total strong,
+.info-page .info-choice-result strong,
+.info-page .info-receipt dd,
+.info-page .info-example-aside dd {
+  @apply font-normal tabular-nums;
+  font-family: var(--font-mono), monospace;
+}
+.info-page .info-position-amount strong {
+  @apply text-[32px] tracking-[-.05em];
+}
+.info-page .info-position-amount small,
+.info-page .info-fill-legend small,
+.info-page .info-illustration-foot small {
+  @apply text-[12px] tracking-[0];
+  color: var(--muted);
+}
+.info-page .info-fill-bar {
+  @apply flex gap-1 h-5 w-full;
+}
+.info-page .info-fill-bar > span:first-child {
+  @apply w-[56%] rounded-[3px_0_0_3px];
+  background: var(--accent);
+}
+.info-page .info-fill-bar > span:last-child {
+  @apply flex-1 rounded-[0_3px_3px_0];
+  background: var(--raised);
+  border: 1px solid var(--border);
+}
+.info-page .info-fill-legend {
+  @apply grid grid-cols-[1fr_1fr] gap-6 m-[20px_0_32px];
+}
+.info-page .info-fill-legend > div {
+  @apply flex flex-col gap-2;
+}
+.info-page .info-fill-legend > div > span {
+  @apply flex items-center gap-2 text-[12px];
+  color: var(--muted);
+}
+.info-page .info-fill-legend i {
+  @apply w-[7px] h-[7px] rounded-[2px];
+}
+.info-page .info-key-fill {
+  background: var(--accent);
+}
+.info-page .info-key-unsold {
+  background: var(--raised);
+  border: 1px solid var(--input-border);
+}
+.info-page .info-fill-legend strong {
+  @apply text-[24px] tracking-[-.04em];
+}
+.info-page .info-illustration-foot {
+  @apply flex justify-between items-baseline gap-4 pt-5 text-[12px];
+  border-top: 1px solid var(--border);
+}
+.info-page .info-illustration-foot > span {
+  color: var(--muted);
+}
+.info-page .info-illustration-foot strong {
+  @apply text-[15px];
+}
+.info-page .info-section {
+  @apply pt-[clamp(64px,_7vw,_104px)] pb-[clamp(64px,_7vw,_104px)];
+}
+.info-page .info-tinted {
+  background: var(--raised);
+}
+.info-page .info-split {
+  @apply grid grid-cols-[1fr_1fr] gap-[clamp(48px,_9vw,_128px)] items-center;
+}
+.info-page .info-section-heading {
+  @apply font-normal text-[clamp(36px,_4vw,_54px)] leading-[1.1] tracking-[-.035em] m-[20px_0_24px];
+  font-family: var(--font-display), Georgia, serif;
+}
+.info-page .info-section-copy > p:not(.site-eyebrow):not(.info-inline-definition) {
+  @apply max-w-[49ch] text-[16px] m-[16px_0];
+  color: var(--muted);
+}
+.info-page .info-section-copy > p.info-small {
+  @apply text-[13px]!;
+}
+.info-page .info-section-copy .site-text-link {
+  @apply mt-2;
+}
+.info-page .info-inline-definition {
+  @apply p-[8px_0_8px_16px] mt-7 text-[14px] flex items-start gap-2;
+  border-left: 2px solid var(--accent);
+}
+.info-page .info-inline-definition svg {
+  @apply flex-none mt-[1px];
+  color: var(--accent);
+}
+.info-page .info-book {
+  @apply m-0 min-w-0 rounded-[8px] overflow-hidden;
+  background: var(--surface);
+  border: 1px solid var(--border);
+}
+.info-page .info-book figcaption {
+  @apply flex flex-col gap-2 p-6;
+}
+.info-page .info-book figcaption strong {
+  @apply text-[15px] font-medium;
+}
+.info-page .info-book figcaption span {
+  @apply text-[12px];
+  color: var(--muted);
+}
+.info-page .info-book table {
+  @apply border-collapse w-full text-[13px] text-left;
+}
+.info-page .info-book th,
+.info-page .info-book td {
+  @apply p-[14px_20px] font-normal;
+}
+.info-page .info-book thead {
+  @apply text-[12px];
+  border-block: 1px solid var(--border);
+  color: var(--muted);
+}
+.info-page .info-book tbody tr {
+  border-bottom: 1px solid var(--border);
+}
+.info-page .info-book tbody th {
+  @apply w-[42%];
+}
+.info-page .info-book td:nth-child(2) {
+  @apply relative text-right tabular-nums;
+  font-family: var(--font-mono), monospace;
+}
+.info-page .info-book td:last-child {
+  @apply whitespace-nowrap text-[12px] text-right;
+}
+.info-page .info-book td:last-child svg {
+  @apply inline-block align-[-3px] mr-1;
+}
+.info-page .info-bid-price {
+  @apply tabular-nums;
+  font-family: var(--font-mono), monospace;
+}
+.info-page .info-bid-depth {
+  @apply absolute top-[9px] bottom-[9px] right-2 rounded-[2px] max-w-[calc(100%_-_16px)];
+  background: var(--accent-soft);
+}
+.info-page .info-bid-value {
+  @apply relative;
+}
+.info-page .info-bid-eligible td:last-child {
+  color: var(--accent);
+}
+.info-page .info-bid-excluded {
+  color: var(--muted);
+}
+.info-page .info-bid-excluded .info-bid-depth {
+  background: var(--raised);
+}
+.info-page .info-floor-label {
+  @apply inline-block text-[12px] ml-2 p-[3px_6px] rounded-[3px] whitespace-nowrap;
+  color: var(--foreground);
+  background: var(--accent-soft);
+}
+.info-page .info-book-total {
+  @apply flex justify-between items-center gap-4 p-[24px_20px_8px];
+}
+.info-page .info-book-total > span {
+  @apply text-[12px] max-w-[20ch];
+}
+.info-page .info-book-total strong {
+  @apply text-[26px] tracking-[-.05em] whitespace-nowrap;
+}
+.info-page .info-book-total small {
+  @apply text-[14px];
+  color: var(--muted);
+}
+.info-page .info-book > p {
+  @apply text-[12px] m-[8px_20px_20px];
+  color: var(--muted);
+}
+.info-page .info-section-intro {
+  @apply grid grid-cols-[1fr_1fr] gap-[0_64px] items-end;
+}
+.info-page .info-section-intro .site-eyebrow {
+  @apply col-span-full;
+}
+.info-page .info-section-intro > p:last-child {
+  @apply max-w-[40ch] m-[0_0_28px];
+  color: var(--muted);
+}
+.info-page .info-comparison {
+  @apply grid grid-cols-[1fr_1fr] mt-6;
+  border-block: 1px solid var(--border);
+}
+.info-page .info-fill-choice {
+  @apply p-[36px_48px_36px_0];
+}
+.info-page .info-fill-choice + .info-fill-choice {
+  @apply p-[36px_0_36px_48px];
+  border-left: 1px solid var(--border);
+}
+.info-page .info-choice-label {
+  @apply uppercase tracking-[.06em] text-[12px] m-[0_0_16px];
+  font-family: var(--font-mono), monospace;
+  color: var(--muted);
+}
+.info-page .info-fill-choice h3 {
+  @apply text-[26px] font-medium tracking-[-.035em] m-[0_0_16px];
+}
+.info-page .info-fill-choice > p:not(.info-choice-label) {
+  @apply max-w-[47ch] mb-7;
+  color: var(--muted);
+}
+.info-page .info-choice-result {
+  @apply flex flex-col gap-[10px];
+}
+.info-page .info-choice-result strong {
+  @apply text-[44px] leading-[1.15] tracking-[-.055em];
+}
+.info-page .info-choice-result small {
+  @apply text-[14px] tracking-[0];
+  font-family: var(--font-sans), sans-serif;
+  color: var(--muted);
+}
+.info-page .info-choice-result > span {
+  @apply text-[13px];
+}
+.info-page .info-section-note {
+  @apply m-[20px_0_0];
+  color: var(--muted);
+}
+.info-page .info-receipt {
+  @apply p-[24px_0];
+  border-block: 1px solid var(--input-border);
+}
+.info-page .info-receipt-head {
+  @apply flex justify-between gap-4 text-[12px] pb-6;
+  color: var(--muted);
+}
+.info-page .info-receipt dl {
+  @apply m-0;
+}
+.info-page .info-receipt dl > div {
+  @apply flex justify-between items-baseline gap-4 mb-5;
+}
+.info-page .info-receipt dt {
+  @apply text-[14px];
+}
+.info-page .info-receipt dd {
+  @apply text-[18px] m-0 whitespace-nowrap;
+}
+.info-page .info-receipt dd > span {
+  @apply text-[12px];
+  color: var(--muted);
+}
+.info-page .info-receipt .info-receipt-net {
+  @apply pt-6 mt-7 flex-wrap gap-3;
+  border-top: 1px solid var(--border);
+}
+.info-page .info-receipt-net dt {
+  @apply w-full;
+}
+.info-page .info-receipt .info-receipt-net dd {
+  @apply text-[56px] tracking-[-.06em] leading-[1.1];
+}
+.info-page .info-receipt .info-receipt-net dd > span {
+  @apply text-[16px] tracking-[0];
+}
+.info-page .info-receipt .info-receipt-remainder {
+  @apply pt-5 mt-7;
+  border-top: 1px solid var(--border);
+}
+.info-page .info-receipt > p {
+  @apply text-[12px] max-w-[58ch] mb-0;
+  color: var(--muted);
+}
+.info-page .info-outcome {
+  @apply grid grid-cols-[1fr_1fr] gap-16 items-center;
+}
+.info-page .info-closing {
+  @apply py-16 flex justify-between items-center gap-10;
+  border-top: 1px solid var(--border);
+}
+.info-page .info-closing .info-section-heading {
+  @apply text-[clamp(34px,_3.5vw,_48px)] my-4;
+}
+.info-page .info-closing p:not(.site-eyebrow) {
+  @apply mb-0;
+  color: var(--muted);
+}
+.info-page .info-closing > .site-button {
+  @apply flex-none;
+}
+.info-page .info-how-hero {
+  @apply pb-16;
+}
+.info-page .info-how-hero .info-heading {
+  @apply max-w-[20ch];
+}
+.info-page .info-how-hero .info-lead {
+  @apply max-w-[49ch];
+}
+.info-page .info-journey {
+  @apply pb-16;
+}
+.info-page .info-step {
+  @apply grid grid-cols-[64px_minmax(0,_1.4fr)_minmax(0,_.8fr)] gap-10 py-16 items-start;
+  border-top: 1px solid var(--border);
+}
+.info-page .info-step-number {
+  @apply text-[14px] pt-[2px];
+  font-family: var(--font-mono), monospace;
+  color: var(--accent);
+}
+.info-page .info-step-copy .site-eyebrow {
+  @apply mt-0;
+}
+.info-page .info-step-copy .info-section-heading {
+  @apply text-[clamp(32px,_3.3vw,_46px)] mt-4;
+}
+.info-page .info-step-copy > p:not(.site-eyebrow) {
+  @apply max-w-[51ch];
+  color: var(--muted);
+}
+.info-page .info-step-aside {
+  @apply rounded-[4px] p-7 mt-8;
+  background: var(--raised);
+}
+.info-page .info-step-aside > svg {
+  @apply block mb-6;
+  color: var(--accent);
+}
+.info-page .info-step-aside > strong {
+  @apply font-medium text-[15px];
+}
+.info-page .info-step-aside > p {
+  @apply text-[13px] mb-0;
+  color: var(--muted);
+}
+.info-page .info-example-label {
+  @apply block text-[12px] mb-6;
+  color: var(--muted);
+}
+.info-page .info-example-aside dl {
+  @apply m-0;
+}
+.info-page .info-example-aside dl > div {
+  @apply flex items-baseline justify-between gap-4 py-3;
+  border-top: 1px solid var(--border);
+}
+.info-page .info-example-aside dt {
+  @apply text-[12px];
+  color: var(--muted);
+}
+.info-page .info-example-aside dd {
+  @apply text-[14px] m-0 text-right;
+}
+.info-page .info-example-aside dd small {
+  @apply text-[12px];
+}
+.info-page .info-example-aside dl > div:last-child dd {
+  @apply text-[12px];
+  font-family: var(--font-sans), sans-serif;
+}
+.info-page .info-status-aside ol {
+  @apply m-0 p-0 list-none;
+}
+.info-page .info-status-aside li {
+  @apply flex items-center gap-3 text-[13px] p-[12px_0];
+}
+.info-page .info-status-aside li + li {
+  border-top: 1px solid var(--border);
+}
+.info-page .info-status-aside li svg {
+  @apply flex-none;
+  color: var(--accent);
+}
+.info-page .info-faq-layout {
+  @apply grid grid-cols-[.75fr_1.25fr] gap-24 items-start;
+}
+.info-page .info-faq-intro > p:not(.site-eyebrow) {
+  @apply max-w-[26ch];
+  color: var(--muted);
+}
+.info-page .info-faq-intro .site-text-link {
+  @apply mt-4;
+}
+.info-page .info-faq {
+  @apply scroll-mt-[112px];
+  border-top: 1px solid var(--border);
+}
+.info-page .info-faq:last-child {
+  border-bottom: 1px solid var(--border);
+}
+.info-page .info-faq summary {
+  @apply cursor-pointer flex gap-6 items-center justify-between list-none p-[24px_0] text-[16px] leading-[1.5];
+}
+.info-page .info-faq summary::-webkit-details-marker {
+  @apply hidden;
+}
+.info-page .info-faq summary svg {
+  @apply flex-none;
+  color: var(--muted);
+}
+.info-page .info-faq[open] summary svg {
+  transform: rotate(180deg);
+}
+.info-page .info-faq > div {
+  @apply p-[0_40px_24px_0];
+}
+.info-page .info-faq > div > p {
+  @apply m-0 text-[14px];
+  color: var(--muted);
+}
+.info-page .info-faq summary:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 4px;
+}
+.info-page .info-closing-actions {
+  @apply flex flex-col items-start gap-3 flex-none;
+}
+.info-page .info-section-heading[id] {
+  @apply scroll-mt-[112px];
+}
+@variant max-lg {
+  .info-page .info-hero-product {
+    @apply gap-8;
+  }
+  .info-page .info-heading {
+    @apply text-[clamp(44px,_6vw,_64px)];
+  }
+  .info-page .info-position-illustration {
+    @apply p-6;
+  }
+  .info-page .info-split {
+    @apply gap-10;
+  }
+  .info-page .info-book th,
+  .info-page .info-book td {
+    @apply px-3;
+  }
+  .info-page .info-floor-label {
+    @apply block w-max m-[4px_0_0];
+  }
+  .info-page .info-book-total {
+    @apply px-4;
+  }
+  .info-page .info-step {
+    @apply grid-cols-[40px_minmax(0,_1.2fr)_minmax(0,_.8fr)] gap-6;
+  }
+  .info-page .info-step-aside {
+    @apply p-5;
+  }
+  .info-page .info-faq-layout {
+    @apply gap-12;
+  }
+}
+@variant max-md {
+  .info-page .info-hero-product,
+  .info-page .info-split,
+  .info-page .info-section-intro,
+  .info-page .info-outcome,
+  .info-page .info-faq-layout {
+    @apply grid-cols-[1fr];
+  }
+  .info-page .info-hero-product {
+    @apply gap-10;
+  }
+  .info-page .info-heading {
+    @apply text-[clamp(44px,_9.7vw,_66px)] max-w-[15ch];
+  }
+  .info-page .info-how-hero .info-heading {
+    @apply max-w-[15ch];
+  }
+  .info-page .info-lead {
+    @apply text-[17px];
+  }
+  .info-page .info-position-illustration {
+    @apply max-w-[520px] w-full;
+  }
+  .info-page .info-market-name {
+    @apply max-w-[30ch];
+  }
+  .info-page .info-split {
+    @apply gap-9;
+  }
+  .info-page .info-section-intro {
+    @apply gap-0;
+  }
+  .info-page .info-section-intro > p:last-child {
+    @apply mb-2;
+  }
+  .info-page .info-comparison {
+    @apply grid-cols-[1fr] mt-6;
+  }
+  .info-page .info-fill-choice,
+  .info-page .info-fill-choice + .info-fill-choice {
+    @apply p-[32px_0];
+    border-left: 0;
+  }
+  .info-page .info-fill-choice + .info-fill-choice {
+    border-top: 1px solid var(--border);
+  }
+  .info-page .info-choice-result {
+    @apply flex-row items-baseline flex-wrap gap-[12px_24px];
+  }
+  .info-page .info-choice-result strong {
+    @apply text-[36px];
+  }
+  .info-page .info-choice-result > span {
+    @apply ml-auto;
+  }
+  .info-page .info-outcome {
+    @apply gap-2;
+  }
+  .info-page .info-closing {
+    @apply flex-col items-start gap-7 py-12;
+  }
+  .info-page .info-how-hero {
+    @apply pb-12;
+  }
+  .info-page .info-journey {
+    @apply pb-8;
+  }
+  .info-page .info-step {
+    @apply grid-cols-[32px_minmax(0,_1fr)] gap-[0_20px] py-10;
+  }
+  .info-page .info-step-aside {
+    @apply col-start-2 mt-4 max-w-[440px];
+  }
+  .info-page .info-step-copy .info-section-heading {
+    @apply mb-5;
+  }
+  .info-page .info-step-copy > p {
+    @apply text-[15px];
+  }
+  .info-page .info-step-copy > p.info-small {
+    @apply text-[13px];
+  }
+  .info-page .info-faq-layout {
+    @apply gap-8;
+  }
+  .info-page .info-faq-intro > p:not(.site-eyebrow) {
+    @apply max-w-[44ch];
+  }
+  .info-page .info-faq-intro .info-section-heading br {
+    @apply hidden;
+  }
+  .info-page .info-faq summary {
+    @apply text-[15px];
+  }
+  .info-page .info-faq > div {
+    @apply pr-2;
+  }
+}
+@media (prefers-reduced-motion: no-preference) {
+  .info-page .info-faq summary svg {
+    transition: transform 180ms ease;
+  }
+}

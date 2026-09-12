@@ -9,7 +9,11 @@
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
     "test:browser": "node scripts/browser-smoke.mjs",
-    "test:privy": "node scripts/privy-smoke.mjs"
+    "test:privy": "node scripts/privy-smoke.mjs",
+    "test:site": "node scripts/site-smoke.mjs",
+    "brand:assets": "node scripts/generate-brand-assets.mjs",
+    "format": "prettier --write src scripts .github package.json tsconfig.json next.config.ts postcss.config.mjs",
+    "format:check": "prettier --check src scripts .github package.json tsconfig.json next.config.ts postcss.config.mjs"
   },
   "dependencies": {
     "@polymarket/bindings": "0.10.0",
@@ -28,6 +32,8 @@
     "@types/node": "^24.0.0",
     "@types/react": "^19.2.0",
     "@types/react-dom": "^19.2.0",
+    "prettier": "3.9.6",
+    "sharp": "0.35.4",
     "tailwindcss": "^4.2.0",
     "typescript": "^5.9.3",
     "vitest": "^4.0.0"

@@ -8,11 +8,7 @@ import {
   SubmissionUncertainError,
   type TradingSession,
 } from "@/lib/trading-client";
-import {
-  exampleMarkets,
-  exampleBook,
-  examplePositions,
-} from "@/lib/example-data";
+import { exampleMarkets, exampleBook, examplePositions } from "@/lib/example-data";
 import { buildQuote } from "@/lib/quote";
 import { compactOrderHistory, decodeOrderHistory } from "@/lib/order-history";
 import { reconcileOrder } from "@/lib/order-status";
@@ -41,9 +37,9 @@ async function get<T>(url: string, signal?: AbortSignal): Promise<T> {
 const STORAGE = "closeout-orders-v1";
 const activeStatuses = ["unknown", "open", "matched", "settling"];
 
-export function useExitWorkspace(): WorkspaceController {
+export function useExitWorkspace(initialMode: DataMode = "live"): WorkspaceController {
   const wallet = useTradingWallet();
-  const [mode, setMode] = useState<DataMode>("live");
+  const [mode, setMode] = useState<DataMode>(initialMode);
   const [markets, setMarkets] = useState<Market[]>([]),
     [marketState, setMarketState] = useState<LoadState>("loading"),
     [marketError, setMarketError] = useState<string | null>(null);
@@ -65,8 +61,7 @@ export function useExitWorkspace(): WorkspaceController {
     [positionError, setPositionError] = useState<string | null>(null);
   const [availableShares, setAvailableShares] = useState<string | null>(null),
     [collateralBalance, setCollateralBalance] = useState<string | null>(null);
-  const [geoStatus, setGeoStatus] =
-    useState<WorkspaceController["geoStatus"]>("checking");
+  const [geoStatus, setGeoStatus] = useState<WorkspaceController["geoStatus"]>("checking");
   const [geoDetail, setGeoDetail] = useState("Checking venue eligibility.");
   const [orders, setOrders] = useState<TrackedOrder[]>([]),
     [ordersLoaded, setOrdersLoaded] = useState(false),
@@ -116,16 +111,11 @@ export function useExitWorkspace(): WorkspaceController {
         }
         try {
           const disk = decodeOrderHistory(localStorage.getItem(STORAGE));
-          const base = [
-            ...disk,
-            ...ordersRef.current.filter((o) => o.mode === "example"),
-          ];
+          const base = [...disk, ...ordersRef.current.filter((o) => o.mode === "example")];
           const next = fn(base);
           localStorage.setItem(
             STORAGE,
-            JSON.stringify(
-              compactOrderHistory(next.filter((o) => o.mode === "live")),
-            ),
+            JSON.stringify(compactOrderHistory(next.filter((o) => o.mode === "live"))),
           );
           ordersRef.current = next;
           setOrders(next);
@@ -145,11 +135,7 @@ export function useExitWorkspace(): WorkspaceController {
         setOrders(next);
         return false;
       }
-      return navigator.locks.request(
-        "closeout-history",
-        { mode: "exclusive" },
-        apply,
-      );
+      return navigator.locks.request("closeout-history", { mode: "exclusive" }, apply);
     },
     [],
   );
@@ -172,10 +158,7 @@ export function useExitWorkspace(): WorkspaceController {
       if (event.key !== STORAGE && event.key !== null) return;
       try {
         const disk = decodeOrderHistory(localStorage.getItem(STORAGE));
-        const next = [
-          ...disk,
-          ...ordersRef.current.filter((o) => o.mode === "example"),
-        ];
+        const next = [...disk, ...ordersRef.current.filter((o) => o.mode === "example")];
         ordersRef.current = next;
         setOrders(next);
       } catch {
@@ -237,10 +220,7 @@ export function useExitWorkspace(): WorkspaceController {
       setMarketState("ready");
       return () => controller.abort();
     }
-    get<{ markets: Market[] }>(
-      `/api/markets?q=${encodeURIComponent(query)}`,
-      controller.signal,
-    )
+    get<{ markets: Market[] }>(`/api/markets?q=${encodeURIComponent(query)}`, controller.signal)
       .then((d) => {
         if (id !== marketRequest.current) return;
         setMarkets(d.markets);
@@ -275,16 +255,12 @@ export function useExitWorkspace(): WorkspaceController {
                   `/api/book?tokenId=${tokenId}&conditionId=${selectedMarket.conditionId}`,
                 )
               ).book;
-        if (id !== bookRequest.current || key !== contextRef.current)
-          return null;
+        if (id !== bookRequest.current || key !== contextRef.current) return null;
         setBook(fresh);
         setBookState("ready");
         setNow(Date.now());
         setFloorPrice(
-          (p) =>
-            p ||
-            fresh.bids[Math.min(2, fresh.bids.length - 1)]?.price ||
-            fresh.tickSize,
+          (p) => p || fresh.bids[Math.min(2, fresh.bids.length - 1)]?.price || fresh.tickSize,
         );
         return fresh;
       } catch (e) {
@@ -338,23 +314,14 @@ export function useExitWorkspace(): WorkspaceController {
   );
   const executionBlockers = useMemo(() => {
     const blockers = [...(quote?.blockers ?? [])];
-    if (!selectedMarket || !quote)
-      blockers.push("Select a market and enter your exit amount.");
+    if (!selectedMarket || !quote) blockers.push("Select a market and enter your exit amount.");
     if (mode === "live") {
-      if (!wallet.address)
-        blockers.push("Connect the wallet that owns your Polymarket account.");
-      if (
-        !accountAddress ||
-        accountInput.trim().toLowerCase() !== accountAddress.toLowerCase()
-      )
-        blockers.push(
-          "Load your Polymarket account address to review an exit.",
-        );
+      if (!wallet.address) blockers.push("Connect the wallet that owns your Polymarket account.");
+      if (!accountAddress || accountInput.trim().toLowerCase() !== accountAddress.toLowerCase())
+        blockers.push("Load your Polymarket account address to review an exit.");
       if (geoStatus !== "allowed") blockers.push(geoDetail);
       if (unresolved)
-        blockers.push(
-          "Reconcile the pending order in Activity before submitting another exit.",
-        );
+        blockers.push("Reconcile the pending order in Activity before submitting another exit.");
       if (!ordersLoaded) blockers.push("Loading saved order history.");
       if (ordersLoaded && !navigator.locks)
         blockers.push(
@@ -369,9 +336,7 @@ export function useExitWorkspace(): WorkspaceController {
         /^\d+(\.\d+)?$/.test(shares) &&
         new Decimal(shares).gt(availableShares)
       )
-        blockers.push(
-          `Only ${availableShares} unreserved shares are available.`,
-        );
+        blockers.push(`Only ${availableShares} unreserved shares are available.`);
     } else if (/^\d+(\.\d+)?$/.test(shares) && new Decimal(shares).gt("250"))
       blockers.push("The fictional example account holds 250 shares.");
     return [...new Set(blockers)];
@@ -393,12 +358,9 @@ export function useExitWorkspace(): WorkspaceController {
 
   async function ensureSession(): Promise<TradingSession> {
     if (!wallet.address || !accountAddress || !validAddress(accountAddress))
-      throw new Error(
-        "Connect the account owner and load its Polymarket account address.",
-      );
+      throw new Error("Connect the account owner and load its Polymarket account address.");
     const key = `${wallet.address.toLowerCase()}:${accountAddress.toLowerCase()}`;
-    if (sessionRef.current && sessionKeyRef.current === key)
-      return sessionRef.current;
+    if (sessionRef.current && sessionKeyRef.current === key) return sessionRef.current;
     const current = contextRef.current,
       signer = wallet.address,
       account = accountAddress;
@@ -426,9 +388,7 @@ export function useExitWorkspace(): WorkspaceController {
       return;
     }
     if (!validAddress(address)) {
-      setPositionError(
-        "Enter the 0x account address shown on your Polymarket profile.",
-      );
+      setPositionError("Enter the 0x account address shown on your Polymarket profile.");
       setPositionState("error");
       return;
     }
@@ -440,11 +400,7 @@ export function useExitWorkspace(): WorkspaceController {
       const d = await get<{ positions: Position[]; hasMore?: boolean }>(
         `/api/positions?account=${address}`,
       );
-      if (
-        id !== positionRequest.current ||
-        requestContext !== positionContextRef.current
-      )
-        return;
+      if (id !== positionRequest.current || requestContext !== positionContextRef.current) return;
       setPositions(d.positions);
       setPositionState("ready");
       if (d.hasMore)
@@ -452,10 +408,7 @@ export function useExitWorkspace(): WorkspaceController {
           "Showing the first 100 positions. Additional positions may exist on Polymarket.",
         );
     } catch (e) {
-      if (
-        id === positionRequest.current &&
-        requestContext === positionContextRef.current
-      ) {
+      if (id === positionRequest.current && requestContext === positionContextRef.current) {
         setPositionState("error");
         setPositionError(message(e));
       }
@@ -478,22 +431,11 @@ export function useExitWorkspace(): WorkspaceController {
         const d = await get<{ markets: Market[] }>(
           `/api/markets?conditionId=${position.conditionId}`,
         );
-        if (
-          selection !== selectionRequest.current ||
-          key !== contextRef.current
-        )
-          return;
+        if (selection !== selectionRequest.current || key !== contextRef.current) return;
         market = d.markets[0];
-        if (market)
-          setMarkets((ms) => [
-            market!,
-            ...ms.filter((m) => m.id !== market!.id),
-          ]);
+        if (market) setMarkets((ms) => [market!, ...ms.filter((m) => m.id !== market!.id)]);
       } catch (e) {
-        if (
-          selection === selectionRequest.current &&
-          key === contextRef.current
-        )
+        if (selection === selectionRequest.current && key === contextRef.current)
           setPositionError(message(e));
         return;
       }
@@ -502,9 +444,7 @@ export function useExitWorkspace(): WorkspaceController {
       setPositionError("This position’s market is unavailable.");
       return;
     }
-    const index = market.outcomes.findIndex(
-      (o) => o.tokenId === position.tokenId,
-    );
+    const index = market.outcomes.findIndex((o) => o.tokenId === position.tokenId);
     if (index < 0) {
       setPositionError("Position token does not match the market.");
       return;
@@ -512,11 +452,7 @@ export function useExitWorkspace(): WorkspaceController {
     setSelectedId(market.id);
     setOutcomeIndex(index);
     setFloorPrice("");
-    setShares(
-      new Decimal(position.size)
-        .toDecimalPlaces(2, Decimal.ROUND_DOWN)
-        .toFixed(),
-    );
+    setShares(new Decimal(position.size).toDecimalPlaces(2, Decimal.ROUND_DOWN).toFixed());
     setReviewOpen(false);
   }
   async function review() {
@@ -530,8 +466,7 @@ export function useExitWorkspace(): WorkspaceController {
       if (mode === "live") {
         const session = await ensureSession();
         const balances = await session.readBalances(tokenId);
-        if (key !== contextRef.current)
-          throw new Error("Account or market changed. Review again.");
+        if (key !== contextRef.current) throw new Error("Account or market changed. Review again.");
         setAvailableShares(balances.available);
         setCollateralBalance(balances.collateral);
         if (!balances.approvalsReady)
@@ -545,9 +480,7 @@ export function useExitWorkspace(): WorkspaceController {
       }
       const fresh = await refreshBook(false);
       if (!fresh || key !== contextRef.current)
-        throw new Error(
-          "Could not refresh this market. Close review and try again.",
-        );
+        throw new Error("Could not refresh this market. Close review and try again.");
       const next = buildQuote(fresh, shares, floorPrice, orderType);
       if (next.blockers.length) throw new Error(next.blockers[0]);
       reviewed.current = {
@@ -575,9 +508,7 @@ export function useExitWorkspace(): WorkspaceController {
       r.orderType !== orderType ||
       Date.now() - r.quote.snapshotAt > 15000
     ) {
-      setReviewError(
-        "This review has expired or changed. Close it and review a fresh quote.",
-      );
+      setReviewError("This review has expired or changed. Close it and review a fresh quote.");
       reviewed.current = null;
       return;
     }
@@ -616,9 +547,7 @@ export function useExitWorkspace(): WorkspaceController {
       const persisted = await writeOrders((prev) => [intent, ...prev]);
       try {
         if (mode === "live" && !persisted)
-          throw new Error(
-            "Order history could not be saved. No order was submitted.",
-          );
+          throw new Error("Order history could not be saved. No order was submitted.");
         if (mode === "example") {
           await writeOrders((prev) =>
             prev.map((o) =>
@@ -628,8 +557,7 @@ export function useExitWorkspace(): WorkspaceController {
                     matchedShares: r!.quote.filledShares,
                     settledShares: r!.quote.filledShares,
                     netReceipt: r!.quote.netReceipt,
-                    status:
-                      r!.quote.status === "partial" ? "partial" : "settled",
+                    status: r!.quote.status === "partial" ? "partial" : "settled",
                     detail:
                       "Simulation only. Fictional fills and proceeds; no wallet signature or transaction was created.",
                   }
@@ -641,10 +569,8 @@ export function useExitWorkspace(): WorkspaceController {
           const session = sessionRef.current;
           if (
             !session ||
-            session.accountAddress.toLowerCase() !==
-              accountAddress?.toLowerCase() ||
-            session.signerAddress.toLowerCase() !==
-              wallet.address?.toLowerCase() ||
+            session.accountAddress.toLowerCase() !== accountAddress?.toLowerCase() ||
+            session.signerAddress.toLowerCase() !== wallet.address?.toLowerCase() ||
             r!.context !== contextRef.current
           )
             throw new Error(
@@ -668,9 +594,7 @@ export function useExitWorkspace(): WorkspaceController {
                   : o,
               ),
             );
-            throw new Error(
-              `Polymarket rejected this order: ${response.message}`,
-            );
+            throw new Error(`Polymarket rejected this order: ${response.message}`);
           }
           await writeOrders((prev) =>
             prev.map((o) =>
@@ -733,9 +657,7 @@ export function useExitWorkspace(): WorkspaceController {
       { mode: "exclusive", ifAvailable: true },
       async (lock) => {
         if (!lock) {
-          setReviewError(
-            "Another tab is handling this account. Wait and refresh Activity.",
-          );
+          setReviewError("Another tab is handling this account. Wait and refresh Activity.");
           return;
         }
         try {
@@ -743,8 +665,7 @@ export function useExitWorkspace(): WorkspaceController {
           if (
             saved.some(
               (o) =>
-                o.accountAddress?.toLowerCase() ===
-                  accountAddress?.toLowerCase() &&
+                o.accountAddress?.toLowerCase() === accountAddress?.toLowerCase() &&
                 activeStatuses.includes(o.status),
             )
           ) {
@@ -762,9 +683,7 @@ export function useExitWorkspace(): WorkspaceController {
         } catch {
           historyHealthyRef.current = false;
           setHistoryHealthy(false);
-          setReviewError(
-            "Could not verify saved order history. No new submission was authorized.",
-          );
+          setReviewError("Could not verify saved order history. No new submission was authorized.");
         }
       },
     );
@@ -781,8 +700,7 @@ export function useExitWorkspace(): WorkspaceController {
       const session = await ensureSession();
       const matching = ordersRef.current.filter(
         (o) =>
-          o.mode === "live" &&
-          o.accountAddress?.toLowerCase() === accountAddress?.toLowerCase(),
+          o.mode === "live" && o.accountAddress?.toLowerCase() === accountAddress?.toLowerCase(),
       );
       for (const order of matching) {
         if (order.id.startsWith("intent-")) {
@@ -823,12 +741,8 @@ export function useExitWorkspace(): WorkspaceController {
         session.getOrder(id),
         session.getTradesForOrder(id),
       ]);
-      writeOrders((prev) =>
-        prev.map((o) => (o.id === id ? reconcileOrder(o, remote, trades) : o)),
-      );
-      setToast(
-        "Cancellation requested. Activity shows the venue’s current state.",
-      );
+      writeOrders((prev) => prev.map((o) => (o.id === id ? reconcileOrder(o, remote, trades) : o)));
+      setToast("Cancellation requested. Activity shows the venue’s current state.");
     } catch (e) {
       setOrderError(message(e));
     } finally {
@@ -842,13 +756,7 @@ export function useExitWorkspace(): WorkspaceController {
       running = false;
     const id = setInterval(async () => {
       const session = sessionRef.current;
-      if (
-        stopped ||
-        running ||
-        busy.current ||
-        !session ||
-        document.visibilityState !== "visible"
-      )
+      if (stopped || running || busy.current || !session || document.visibilityState !== "visible")
         return;
       const pending = ordersRef.current.filter(
         (o) =>
@@ -984,8 +892,7 @@ export function useExitWorkspace(): WorkspaceController {
     signerAddress: wallet.address,
     accountAddress,
     walletError: walletError ?? wallet.error,
-    onConnect: () =>
-      void wallet.connect().catch((e) => setWalletError(message(e))),
+    onConnect: () => void wallet.connect().catch((e) => setWalletError(message(e))),
     onDisconnect: () => edit(() => wallet.disconnect()),
     connectLabel: wallet.connectLabel,
     availableShares: mode === "example" ? "250" : availableShares,

@@ -8,3 +8,5 @@ docs/
 playwright-report/
 test-results/
 *.tsbuildinfo
+.artifacts/
+*.bak

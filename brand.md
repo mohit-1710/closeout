@@ -1,9 +1,46 @@
-# Closeout
+# Closeout brand
 
-Status: selected under delegated product/design authority, September12 IST.
+Status: selected by Mohit, September 12, 2026. Reference: [AgentTrust](https://www.agenttrust.tech/), another product owned by Mohit. This replaces the earlier dark/lime direction at his explicit request. The previous theme is preserved in Git and local `.bak` files.
 
-Purpose: help repeat prediction traders execute a controlled exit and understand what remains. Voice: concise, factual, calm. No promises of fill or improved returns.
+Closeout helps prediction-market traders understand and control an exit from an existing position. The public website explains that decision; the dedicated planner is an efficient financial workspace.
 
-Direction: dark compact workstation, flat bordered panels, one chart and one exit ticket. Ink#101512, panel#171d19, raised#202822, foreground#f0f4ef, muted#a5b2a7, accent#c8ee8d, border#334037. Semantic red#ffaaa3, amber#f4cf83. All CSS through named tokens. Light theme: off-white#f4f6f1, panel#ffffff, foreground#18241d, muted#526255, accent#355b16, border#ccd7cb.
+## Direction
 
-Typography: system sans with deliberate weights400/500/600; monospace for order identifiers and numeric data, tabular numerals. No downloaded font dependency. Motion: short opacity/color transitions; respect reduced motion. No decorative gradients or floating marketing cards. Wordmark: custom corner/exit arrow mark.
+Warm editorial finance: paper-white surfaces, deep ink, restrained violet, serif display headings and precise sans-serif controls. Public pages have generous space and varied section structure. The planner uses compact, clearly grouped panels. Default and current product theme is light. Dark mode is not exposed as a half-finished option.
+
+## Colors
+
+| Role | Color | Use |
+| --- | --- | --- |
+| Background | `#fbfaf9` | AgentTrust's exact warm white |
+| Surface | `#ffffff` | Main panels and white control surfaces |
+| Foreground | `#0a0a0a` | AgentTrust's exact ink; deliberate near-black |
+| Primary | `#6f4cff` | AgentTrust's exact violet; action, selection, eligible bid depth |
+| Primary text | `#ffffff` | Labels on violet |
+| Primary hover | `#5c39e8` | Interactive feedback |
+| Raised | `#f3f0f7` | Quiet secondary surface |
+| Accent soft | `#f0ebff` | Background only; use ink for small foreground text |
+| Muted | `#68646f` | Accessible supporting copy |
+| Border | `#dfdce4` | Structural dividers |
+| Input border | `#96909e` | Meaningful control boundaries |
+| Success | `#1f7a3d` | Confirmed success or supported positive state |
+| Warning | `#895e0c` | Readable warning text |
+| Danger | `#b63726` | Readable errors |
+
+AgentTrust's original translucent muted text and amber are darkened here for small financial labels. Color is never the sole distinction between order states. Color variables are defined in `src/app/globals.css`; the workspace maps those tokens through its `--co-*` aliases.
+
+## Type and identity
+
+- Fraunces: editorial display headings, 400–500 weight; selective italics.
+- Geist: UI/body and wordmark, 400/500/600; tabular financial numerals.
+- Geist Mono: small structural labels and identifiers, never long paragraphs.
+- Fonts are served by Next's self-hosted font pipeline.
+- The custom mark combines an open C with a rightward exit arrow. `src/components/brand.tsx` is the inline UI mark. `src/app/icon.svg` is the compact app mark, with generated ICO/Apple/PNG/social variants.
+
+## Voice and interaction
+
+Lead with the trader's decision and the actual product. Use plain, useful language: price floor, fees, fillable shares, unsold shares. Keep technical details on engineering pages unless they change a user's decision. Do not fabricate adoption, returns, counterparties, endorsements, completed trades or product-market fit.
+
+Primary action opens `/app`; secondary action opens `/app?mode=example`. The latter starts explicitly in fictional mode. Browsing needs no wallet; authorization belongs at the trading decision. Native links/buttons, visible focus, touch targets and reduced-motion support are required.
+
+Motion: short state feedback and one restrained desktop entrance. No scrolling lock, fake carousel, decorative auto-playing video, or motion on every quote refresh. Illustrative financial data is labeled, and the homepage preview uses the real decimal quote engine against a fixed fictional book.

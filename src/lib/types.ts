@@ -75,14 +75,7 @@ export interface Position {
   redeemable: boolean;
 }
 export type OrderStatus =
-  | "open"
-  | "matched"
-  | "partial"
-  | "settling"
-  | "settled"
-  | "cancelled"
-  | "failed"
-  | "unknown";
+  "open" | "matched" | "partial" | "settling" | "settled" | "cancelled" | "failed" | "unknown";
 export interface TrackedOrder {
   id: string;
   market: string;

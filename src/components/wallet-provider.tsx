@@ -10,12 +10,7 @@ import {
   useState,
   type ReactNode,
 } from "react";
-import {
-  PrivyProvider,
-  useConnectWallet,
-  usePrivy,
-  useWallets,
-} from "@privy-io/react-auth";
+import { PrivyProvider, useConnectWallet, usePrivy, useWallets } from "@privy-io/react-auth";
 import { getAddress, isAddress, type EIP1193Provider } from "viem";
 import { polygon } from "viem/chains";
 
@@ -41,16 +36,9 @@ const disconnected: WalletState = {
 };
 
 function errorMessage(error: unknown) {
-  if (
-    error &&
-    typeof error === "object" &&
-    "code" in error &&
-    error.code === 4001
-  )
+  if (error && typeof error === "object" && "code" in error && error.code === 4001)
     return "Wallet request canceled. No trade was submitted.";
-  return error instanceof Error
-    ? error.message
-    : "Could not connect the wallet. Please try again.";
+  return error instanceof Error ? error.message : "Could not connect the wallet. Please try again.";
 }
 
 async function ensurePolygon(provider: EIP1193Provider) {
@@ -62,14 +50,7 @@ async function ensurePolygon(provider: EIP1193Provider) {
       params: [{ chainId: "0x89" }],
     });
   } catch (error) {
-    if (
-      !(
-        error &&
-        typeof error === "object" &&
-        "code" in error &&
-        error.code === 4902
-      )
-    )
+    if (!(error && typeof error === "object" && "code" in error && error.code === 4902))
       throw error;
     await provider.request({
       method: "wallet_addEthereumChain",
@@ -130,16 +111,12 @@ function useWalletConnection() {
       if (!first || !isAddress(first))
         throw new Error("The wallet did not provide an Ethereum account.");
       const chain = await provider.request({ method: "eth_chainId" });
-      if (BigInt(chain) !== 137n)
-        throw new Error("Switch this wallet to Polygon to continue.");
-      if (attempt !== generation.current)
-        throw new Error("Connection was canceled.");
+      if (BigInt(chain) !== 137n) throw new Error("Switch this wallet to Polygon to continue.");
+      if (attempt !== generation.current) throw new Error("Connection was canceled.");
       const selected = getAddress(first);
       const events = provider as EventProvider;
       const invalidate = () =>
-        disconnect(
-          "Wallet account or network changed. Reconnect to review the correct account.",
-        );
+        disconnect("Wallet account or network changed. Reconnect to review the correct account.");
       for (const event of ["accountsChanged", "chainChanged", "disconnect"])
         events.on?.(event, invalidate);
       cleanupRef.current = () => {
@@ -183,8 +160,7 @@ function InjectedWalletProvider({ children }: { children: ReactNode }) {
   const connect = useCallback(async () => {
     const attempt = connection.start();
     try {
-      const provider = (window as Window & { ethereum?: EIP1193Provider })
-        .ethereum;
+      const provider = (window as Window & { ethereum?: EIP1193Provider }).ethereum;
       if (!provider)
         throw new Error(
           "Install an Ethereum wallet such as Rabby or MetaMask, then reload this page.",
@@ -195,10 +171,7 @@ function InjectedWalletProvider({ children }: { children: ReactNode }) {
       connection.fail(error, attempt);
     }
   }, [connection.start, connection.adopt, connection.fail]);
-  const disconnect = useCallback(
-    () => connection.disconnect(),
-    [connection.disconnect],
-  );
+  const disconnect = useCallback(() => connection.disconnect(), [connection.disconnect]);
   const value = useMemo(
     () => ({
       ...connection.state,
@@ -209,9 +182,7 @@ function InjectedWalletProvider({ children }: { children: ReactNode }) {
     }),
     [connection.state, connect, disconnect, connection.getProvider],
   );
-  return (
-    <WalletContext.Provider value={value}>{children}</WalletContext.Provider>
-  );
+  return <WalletContext.Provider value={value}>{children}</WalletContext.Provider>;
 }
 
 function PrivyWalletConnection({ children }: { children: ReactNode }) {
@@ -238,14 +209,9 @@ function PrivyWalletConnection({ children }: { children: ReactNode }) {
       if (!current) return;
       try {
         if (!("getEthereumProvider" in wallet))
-          throw new Error(
-            "Choose an Ethereum wallet that owns your Polymarket account.",
-          );
+          throw new Error("Choose an Ethereum wallet that owns your Polymarket account.");
         const provider = await wallet.getEthereumProvider();
-        await connection.adopt(
-          provider as unknown as EIP1193Provider,
-          current.attempt,
-        );
+        await connection.adopt(provider as unknown as EIP1193Provider, current.attempt);
       } catch (error) {
         connection.fail(error, current.attempt);
       } finally {
@@ -282,12 +248,7 @@ function PrivyWalletConnection({ children }: { children: ReactNode }) {
       observedWallet.current = null;
       connection.disconnect("Wallet disconnected. Reconnect before trading.");
     }
-  }, [
-    wallets,
-    connection.state.status,
-    connection.state.address,
-    connection.disconnect,
-  ]);
+  }, [wallets, connection.state.status, connection.state.address, connection.disconnect]);
   const connect = useCallback(async () => {
     if (pending.current) return;
     const attempt = connection.start();
@@ -300,10 +261,7 @@ function PrivyWalletConnection({ children }: { children: ReactNode }) {
     }
     return new Promise<void>((resolve) => {
       const timer = setTimeout(() => {
-        connection.fail(
-          new Error("Wallet connection expired. Please reconnect."),
-          attempt,
-        );
+        connection.fail(new Error("Wallet connection expired. Please reconnect."), attempt);
         finish();
       }, 120_000);
       pending.current = { attempt, resolve, timer };
@@ -325,15 +283,12 @@ function PrivyWalletConnection({ children }: { children: ReactNode }) {
     }),
     [connection.state, connect, disconnect, connection.getProvider],
   );
-  return (
-    <WalletContext.Provider value={value}>{children}</WalletContext.Provider>
-  );
+  return <WalletContext.Provider value={value}>{children}</WalletContext.Provider>;
 }
 
 export function WalletProvider({ children }: { children: ReactNode }) {
   const appId = process.env.NEXT_PUBLIC_PRIVY_APP_ID?.trim();
-  if (!appId)
-    return <InjectedWalletProvider>{children}</InjectedWalletProvider>;
+  if (!appId) return <InjectedWalletProvider>{children}</InjectedWalletProvider>;
   return (
     <PrivyProvider
       appId={appId}
@@ -352,7 +307,6 @@ export function WalletProvider({ children }: { children: ReactNode }) {
 
 export function useTradingWallet(): TradingWalletContext {
   const context = useContext(WalletContext);
-  if (!context)
-    throw new Error("useTradingWallet must be used inside WalletProvider.");
+  if (!context) throw new Error("useTradingWallet must be used inside WalletProvider.");
   return context;
 }

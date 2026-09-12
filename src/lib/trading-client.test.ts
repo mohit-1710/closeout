@@ -46,8 +46,7 @@ function pages(items: any[]) {
     },
   };
 }
-const token =
-  "107505882767731489358349912513945399560393482969656700824895970500493757150417";
+const token = "107505882767731489358349912513945399560393482969656700824895970500493757150417";
 const order = {
   id: "one",
   assetId: token,
@@ -63,21 +62,15 @@ beforeEach(() => {
   vi.stubGlobal("window", {});
   vi.stubGlobal(
     "fetch",
-    vi
-      .fn()
-      .mockResolvedValue({
-        ok: true,
-        json: async () => ({ blocked: false, country: "IN" }),
-      }),
+    vi.fn().mockResolvedValue({
+      ok: true,
+      json: async () => ({ blocked: false, country: "IN" }),
+    }),
   );
   listeners = {};
   provider = {
     request: vi.fn(async ({ method }: any) =>
-      method === "eth_accounts"
-        ? [signer]
-        : method === "eth_chainId"
-          ? "0x89"
-          : "0x6000",
+      method === "eth_accounts" ? [signer] : method === "eth_chainId" ? "0x89" : "0x6000",
     ),
     on: (e: string, f: Function) => (listeners[e] ??= new Set()).add(f),
     removeListener: (e: string, f: Function) => listeners[e]?.delete(f),
@@ -89,22 +82,18 @@ beforeEach(() => {
       .mockResolvedValue({ negRisk: false, minOrderSize: "5", tickSize: 0.01 }),
     listOpenOrders: vi.fn(() => pages([order])),
     createMarketOrder: vi.fn().mockResolvedValue(signed),
-    postOrder: vi
-      .fn()
-      .mockResolvedValue({
-        ok: true,
-        orderId: "one",
-        status: "matched",
-        tradeIds: ["t"],
-        transactionsHashes: [],
-      }),
+    postOrder: vi.fn().mockResolvedValue({
+      ok: true,
+      orderId: "one",
+      status: "matched",
+      tradeIds: ["t"],
+      transactionsHashes: [],
+    }),
     fetchOrder: vi.fn().mockResolvedValue(order),
-    cancelOrder: vi
-      .fn()
-      .mockResolvedValue({
-        canceled: [],
-        notCanceled: { one: "already matched" },
-      }),
+    cancelOrder: vi.fn().mockResolvedValue({
+      canceled: [],
+      notCanceled: { one: "already matched" },
+    }),
     listAccountTrades: vi.fn(() => pages([])),
     closeSubscriptions: vi.fn().mockResolvedValue(undefined),
   };
@@ -117,9 +106,7 @@ beforeEach(() => {
 afterEach(() => vi.unstubAllGlobals());
 describe("Closeout trading boundary", () => {
   it("chooses SDK standard and neg-risk exchanges for protocol v1 tokens", () => {
-    expect(resolveExitExchange(token, false).toLowerCase()).toBe(
-      exchange.toLowerCase(),
-    );
+    expect(resolveExitExchange(token, false).toLowerCase()).toBe(exchange.toLowerCase());
     expect(resolveExitExchange(token, true).toLowerCase()).toBe(
       "0xe2222d279d744050d28e00520010520000310f59",
     );
@@ -129,26 +116,16 @@ describe("Closeout trading boundary", () => {
     expect(resolveExitExchange(position, false).toLowerCase()).toBe(
       "0xe3333700ca9d93003f00f0f71f8515005f6c00aa",
     );
-    expect(resolveExitExchange(position, true)).toBe(
-      resolveExitExchange(position, false),
-    );
+    expect(resolveExitExchange(position, true)).toBe(resolveExitExchange(position, false));
   });
   it("rejects an identifier larger than uint256", () => {
-    expect(() => resolveExitExchange((1n << 256n).toString(), false)).toThrow(
-      "uint256",
-    );
+    expect(() => resolveExitExchange((1n << 256n).toString(), false)).toThrow("uint256");
   });
   it("does not deploy an undeployed account during authentication", async () => {
     provider.request.mockImplementation(async ({ method }: any) =>
-      method === "eth_accounts"
-        ? [signer]
-        : method === "eth_chainId"
-          ? "0x89"
-          : "0x",
+      method === "eth_accounts" ? [signer] : method === "eth_chainId" ? "0x89" : "0x",
     );
-    await expect(
-      createTradingSession(provider, signer, account),
-    ).rejects.toThrow("not deployed");
+    await expect(createTradingSession(provider, signer, account)).rejects.toThrow("not deployed");
     expect(m.create).not.toHaveBeenCalled();
   });
 
@@ -163,9 +140,7 @@ describe("Closeout trading boundary", () => {
   });
   it("does not assume a watched wallet is owned", async () => {
     m.client.account.signerType = "SESSION_KEY";
-    await expect(
-      createTradingSession(provider, signer, account),
-    ).rejects.toThrow("not the owner");
+    await expect(createTradingSession(provider, signer, account)).rejects.toThrow("not the owner");
     expect(m.client.postOrder).not.toHaveBeenCalled();
   });
   it("normalizes raw balances and subtracts remaining open sells", async () => {
@@ -221,9 +196,7 @@ describe("Closeout trading boundary", () => {
       }),
     ).rejects.toThrow("approval");
     expect(m.client.createMarketOrder).not.toHaveBeenCalled();
-    await expect(
-      m.create.mock.calls[0][0].signer.sendTransaction(),
-    ).rejects.toThrow("approvals");
+    await expect(m.create.mock.calls[0][0].signer.sendTransaction()).rejects.toThrow("approvals");
   });
   it("blocks geo-restricted user before signing", async () => {
     const c = await createTradingSession(provider, signer, account);
@@ -271,12 +244,8 @@ describe("Closeout trading boundary", () => {
       floorPrice: "0.52",
       orderType: "FAK" as const,
     };
-    await expect(c.placeExit(request)).rejects.toBeInstanceOf(
-      SubmissionUncertainError,
-    );
-    await expect(c.placeExit(request)).rejects.toBeInstanceOf(
-      SubmissionUncertainError,
-    );
+    await expect(c.placeExit(request)).rejects.toBeInstanceOf(SubmissionUncertainError);
+    await expect(c.placeExit(request)).rejects.toBeInstanceOf(SubmissionUncertainError);
     expect(m.client.postOrder).toHaveBeenCalledTimes(1);
   });
   it("preserves cancellation failure and rejects foreign orders", async () => {

@@ -66,13 +66,20 @@ describe("sell-side exit estimates", () => {
     const plan = valid(calculateExitPlan(fixture({ floorPrice: "0.6" })));
     expect(plan.status).toBe("partial");
     expect(plan.estimate).toEqual({
-      filledShares: "70", remainingShares: "30", grossReceipt: "44",
-      fees: "0.815", netReceipt: "43.185",
-      weightedAveragePrice: "0.628571428571428571", worstFillPrice: "0.6",
+      filledShares: "70",
+      remainingShares: "30",
+      grossReceipt: "44",
+      fees: "0.815",
+      netReceipt: "43.185",
+      weightedAveragePrice: "0.628571428571428571",
+      worstFillPrice: "0.6",
     });
     expect(plan.depthSteps[2]).toMatchObject({
-      exclusionReason: "below-floor", filledShares: "0", remainingShares: "30",
-      cumulativeFilledShares: "70", cumulativeGrossReceipt: "44",
+      exclusionReason: "below-floor",
+      filledShares: "0",
+      remainingShares: "30",
+      cumulativeFilledShares: "70",
+      cumulativeGrossReceipt: "44",
     });
   });
 
@@ -83,28 +90,38 @@ describe("sell-side exit estimates", () => {
     expect(plan.available.filledShares).toBe("70");
     expect(plan.available.netReceipt).toBe("43.185");
     expect(plan.estimate).toEqual({
-      filledShares: "0", remainingShares: "100", grossReceipt: "0",
-      fees: "0", netReceipt: "0", weightedAveragePrice: null, worstFillPrice: null,
+      filledShares: "0",
+      remainingShares: "100",
+      grossReceipt: "0",
+      fees: "0",
+      netReceipt: "0",
+      weightedAveragePrice: null,
+      worstFillPrice: null,
     });
     expect(plan.passesSnapshotChecks).toBe(false);
   });
 
   it("permits FOK at exactly sufficient depth", () => {
-    const plan = valid(calculateExitPlan(fixture({ shares: "70", floorPrice: "0.6", orderType: "FOK" })));
+    const plan = valid(
+      calculateExitPlan(fixture({ shares: "70", floorPrice: "0.6", orderType: "FOK" })),
+    );
     expect(plan.status).toBe("full");
     expect(plan.estimate).toEqual(plan.available);
     expect(plan.passesSnapshotChecks).toBe(true);
   });
 
-  it.each([{ bids: [] }, { bids: [{ price: "0.49", size: "1000" }] }])("returns no fill for absent eligible bids: %j", ({ bids }) => {
-    const plan = valid(calculateExitPlan(fixture({ bids })));
-    expect(plan.status).toBe("no-fill");
-    expect(plan.estimate.filledShares).toBe("0");
-    expect(plan.estimate.remainingShares).toBe("100");
-    expect(plan.estimate.netReceipt).toBe("0");
-    expect(plan.estimate.weightedAveragePrice).toBeNull();
-    expect(plan.blockers).toContain("no-liquidity-at-floor");
-  });
+  it.each([{ bids: [] }, { bids: [{ price: "0.49", size: "1000" }] }])(
+    "returns no fill for absent eligible bids: %j",
+    ({ bids }) => {
+      const plan = valid(calculateExitPlan(fixture({ bids })));
+      expect(plan.status).toBe("no-fill");
+      expect(plan.estimate.filledShares).toBe("0");
+      expect(plan.estimate.remainingShares).toBe("100");
+      expect(plan.estimate.netReceipt).toBe("0");
+      expect(plan.estimate.weightedAveragePrice).toBeNull();
+      expect(plan.blockers).toContain("no-liquidity-at-floor");
+    },
+  );
 
   it("does not include excess depth after the requested shares are filled", () => {
     const plan = valid(calculateExitPlan(fixture({ shares: "10" })));
@@ -115,10 +132,18 @@ describe("sell-side exit estimates", () => {
   });
 
   it("keeps decimal shares exact without binary floating-point dust", () => {
-    const plan = valid(calculateExitPlan(fixture({
-      shares: "0.3", fee: { kind: "none" },
-      bids: [{ price: "0.5", size: "0.2" }, { price: "0.6", size: "0.1" }],
-    })));
+    const plan = valid(
+      calculateExitPlan(
+        fixture({
+          shares: "0.3",
+          fee: { kind: "none" },
+          bids: [
+            { price: "0.5", size: "0.2" },
+            { price: "0.6", size: "0.1" },
+          ],
+        }),
+      ),
+    );
     expect(plan.estimate.filledShares).toBe("0.3");
     expect(plan.estimate.remainingShares).toBe("0");
     expect(plan.estimate.grossReceipt).toBe("0.16");
@@ -127,11 +152,18 @@ describe("sell-side exit estimates", () => {
 
   it("preserves exact products near the supported 18-digit boundaries", () => {
     const amount = "999999999999999999.999999999999999999";
-    const plan = valid(calculateExitPlan(fixture({
-      shares: amount, fee: { kind: "none" },
-      bids: [{ price: "0.999999999999999999", size: amount }],
-    })));
-    expect(plan.estimate.grossReceipt).toBe("999999999999999998.999999999999999999000000000000000001");
+    const plan = valid(
+      calculateExitPlan(
+        fixture({
+          shares: amount,
+          fee: { kind: "none" },
+          bids: [{ price: "0.999999999999999999", size: amount }],
+        }),
+      ),
+    );
+    expect(plan.estimate.grossReceipt).toBe(
+      "999999999999999998.999999999999999999000000000000000001",
+    );
     expect(plan.estimate.remainingShares).toBe("0");
   });
 
@@ -164,11 +196,19 @@ describe("explicit fee and minimum-receipt policy", () => {
   });
 
   it("applies a supplied exponent per price level rather than to an average price", () => {
-    const plan = valid(calculateExitPlan(fixture({
-      shares: "20", floorPrice: "0.1",
-      fee: { kind: "known", rate: "0.2", exponent: 2 },
-      bids: [{ price: "0.25", size: "10" }, { price: "0.75", size: "10" }],
-    })));
+    const plan = valid(
+      calculateExitPlan(
+        fixture({
+          shares: "20",
+          floorPrice: "0.1",
+          fee: { kind: "known", rate: "0.2", exponent: 2 },
+          bids: [
+            { price: "0.25", size: "10" },
+            { price: "0.75", size: "10" },
+          ],
+        }),
+      ),
+    );
     expect(plan.estimate.grossReceipt).toBe("10");
     expect(plan.estimate.fees).toBe("0.140625");
     expect(plan.depthSteps.map((s) => s.fees)).toEqual(["0.0703125", "0.0703125"]);
@@ -176,18 +216,26 @@ describe("explicit fee and minimum-receipt policy", () => {
 
   it("rounds only when an explicit per-level rounding model is supplied", () => {
     const input = fixture({
-      shares: "0.003", bids: [{ price: "0.5", size: "0.003" }],
+      shares: "0.003",
+      bids: [{ price: "0.5", size: "0.003" }],
     });
     expect(valid(calculateExitPlan(input)).estimate.fees).toBe("0.0000375");
-    const rounded = valid(calculateExitPlan({
-      ...input, fee: { kind: "known", rate: "0.05", exponent: 1, roundingDecimals: 5 },
-    }));
+    const rounded = valid(
+      calculateExitPlan({
+        ...input,
+        fee: { kind: "known", rate: "0.05", exponent: 1, roundingDecimals: 5 },
+      }),
+    );
     expect(rounded.estimate.fees).toBe("0.00004");
     expect(rounded.warnings.some((s) => s.includes("actual matches may split"))).toBe(true);
   });
 
   it("never treats unknown fees as zero, but still displays gross depth", () => {
-    const plan = valid(calculateExitPlan(fixture({ fee: { kind: "unknown", reason: "Market response omitted the schedule" } })));
+    const plan = valid(
+      calculateExitPlan(
+        fixture({ fee: { kind: "unknown", reason: "Market response omitted the schedule" } }),
+      ),
+    );
     expect(plan.status).toBe("blocked");
     expect(plan.blockers).toContain("unknown-fees");
     expect(plan.available.grossReceipt).toBe("60.5");
@@ -210,7 +258,9 @@ describe("explicit fee and minimum-receipt policy", () => {
     const atBoundary = valid(calculateExitPlan(fixture({ minNetReceipt: "59.31375" })));
     expect(atBoundary.status).toBe("full");
     expect(atBoundary.meetsMinNetReceipt).toBe(true);
-    const overBoundary = valid(calculateExitPlan(fixture({ minNetReceipt: "59.313750000000000001" })));
+    const overBoundary = valid(
+      calculateExitPlan(fixture({ minNetReceipt: "59.313750000000000001" })),
+    );
     expect(overBoundary.available.netReceipt).toBe("59.31375");
     expect(overBoundary.status).toBe("blocked");
     expect(overBoundary.meetsMinNetReceipt).toBe(false);
@@ -227,7 +277,9 @@ describe("explicit fee and minimum-receipt policy", () => {
   });
 
   it("does not let candidate partial proceeds satisfy a FOK receipt test", () => {
-    const plan = valid(calculateExitPlan(fixture({ floorPrice: "0.6", orderType: "FOK", minNetReceipt: "40" })));
+    const plan = valid(
+      calculateExitPlan(fixture({ floorPrice: "0.6", orderType: "FOK", minNetReceipt: "40" })),
+    );
     expect(plan.available.netReceipt).toBe("43.185");
     expect(plan.meetsMinNetReceipt).toBe(false);
     expect(plan.estimate.netReceipt).toBe("0");
@@ -245,25 +297,46 @@ describe("invalid snapshots and malformed financial inputs", () => {
     ["0.50", "0.5"],
     ["00.600", "0.6000"],
   ])("rejects equivalent duplicate aggregated prices %s and %s", (a, b) => {
-    const result = calculateExitPlan(fixture({ bids: [{ price: a, size: "10" }, { price: b, size: "20" }] }));
+    const result = calculateExitPlan(
+      fixture({
+        bids: [
+          { price: a, size: "10" },
+          { price: b, size: "20" },
+        ],
+      }),
+    );
     expect(result.valid).toBe(false);
     if (!result.valid) expect(result.issues.some((i) => i.code === "duplicate-price")).toBe(true);
   });
 
   it.each([
-    { shares: "0" }, { shares: "-1" }, { shares: 10 },
-    { shares: "1e2" }, { shares: "NaN" }, { shares: "Infinity" },
-    { floorPrice: "" }, { floorPrice: ".5" }, { floorPrice: "0.5 " },
-    { floorPrice: "1.01" }, { floorPrice: null },
-    { minNetReceipt: "-0.01" }, { minNetReceipt: "1.2.3" }, { minNetReceipt: null },
-    { shares: "1.0000000000000000001" }, { shares: "1000000000000000000" },
-    { orderType: "GTC" }, { fee: null }, { fee: { kind: "known", rate: "0.05" } },
+    { shares: "0" },
+    { shares: "-1" },
+    { shares: 10 },
+    { shares: "1e2" },
+    { shares: "NaN" },
+    { shares: "Infinity" },
+    { floorPrice: "" },
+    { floorPrice: ".5" },
+    { floorPrice: "0.5 " },
+    { floorPrice: "1.01" },
+    { floorPrice: null },
+    { minNetReceipt: "-0.01" },
+    { minNetReceipt: "1.2.3" },
+    { minNetReceipt: null },
+    { shares: "1.0000000000000000001" },
+    { shares: "1000000000000000000" },
+    { orderType: "GTC" },
+    { fee: null },
+    { fee: { kind: "known", rate: "0.05" } },
     { fee: { kind: "known", rate: "1.1", exponent: 1 } },
     { fee: { kind: "known", rate: "0.05", exponent: 1.5 } },
     { fee: { kind: "known", rate: "0.05", exponent: -1 } },
     { fee: { kind: "known", rate: "0.05", exponent: 9 } },
     { fee: { kind: "known", rate: "0.05", exponent: 1, roundingDecimals: -1 } },
-    { bids: null }, { bids: [null] }, { bids: new Array(1) },
+    { bids: null },
+    { bids: [null] },
+    { bids: new Array(1) },
     { bids: [{ price: "0", size: "1" }] },
     { bids: [{ price: "1", size: "1" }] },
     { bids: [{ price: "0.5", size: "0" }] },
@@ -293,25 +366,38 @@ describe("invalid snapshots and malformed financial inputs", () => {
 
 describe("snapshot freshness policy", () => {
   it("treats the age boundary as inclusive and rejects one millisecond older", () => {
-    expect(checkSnapshotFreshness({ ...SNAPSHOT, nowMs: SNAPSHOT.timestampMs + 15_000 }).isFresh).toBe(true);
-    expect(checkSnapshotFreshness({ ...SNAPSHOT, nowMs: SNAPSHOT.timestampMs + 15_001 }).status).toBe("stale");
+    expect(
+      checkSnapshotFreshness({ ...SNAPSHOT, nowMs: SNAPSHOT.timestampMs + 15_000 }).isFresh,
+    ).toBe(true);
+    expect(
+      checkSnapshotFreshness({ ...SNAPSHOT, nowMs: SNAPSHOT.timestampMs + 15_001 }).status,
+    ).toBe("stale");
   });
 
   it("rejects future timestamps unless a finite explicit skew allowance covers them", () => {
     const input = { ...SNAPSHOT, timestampMs: SNAPSHOT.nowMs + 100 };
     expect(checkSnapshotFreshness(input).status).toBe("future");
     expect(checkSnapshotFreshness({ ...input, allowedFutureSkewMs: 100 })).toMatchObject({
-      status: "fresh", ageMs: 0, clockSkewMs: 100,
+      status: "fresh",
+      ageMs: 0,
+      clockSkewMs: 100,
     });
     expect(checkSnapshotFreshness({ ...input, allowedFutureSkewMs: 99 }).status).toBe("future");
   });
 
   it.each([
-    { timestampMs: NaN }, { timestampMs: -1 }, { timestampMs: 1.5 },
-    { nowMs: Infinity }, { nowMs: Number.MAX_SAFE_INTEGER + 1 },
-    { maxAgeMs: -1 }, { allowedFutureSkewMs: Infinity }, { allowedFutureSkewMs: null },
+    { timestampMs: NaN },
+    { timestampMs: -1 },
+    { timestampMs: 1.5 },
+    { nowMs: Infinity },
+    { nowMs: Number.MAX_SAFE_INTEGER + 1 },
+    { maxAgeMs: -1 },
+    { allowedFutureSkewMs: Infinity },
+    { allowedFutureSkewMs: null },
   ])("rejects invalid clock data %j", (overrides) => {
-    expect(checkSnapshotFreshness({ ...SNAPSHOT, ...overrides } as SnapshotFreshnessInput).status).toBe("invalid");
+    expect(
+      checkSnapshotFreshness({ ...SNAPSHOT, ...overrides } as SnapshotFreshnessInput).status,
+    ).toBe("invalid");
   });
 
   it("has no implicit wall-clock dependency or assumed freshness", () => {

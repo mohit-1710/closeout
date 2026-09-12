@@ -104,8 +104,7 @@ export async function checkGeo(): Promise<GeoResult> {
         }
       : {
           status: "allowed",
-          detail:
-            "The venue location check passed. Account and market restrictions still apply.",
+          detail: "The venue location check passed. Account and market restrictions still apply.",
         };
   } catch {
     return {
@@ -117,11 +116,9 @@ export async function checkGeo(): Promise<GeoResult> {
 }
 
 function decimal(value: string, label: string): Decimal {
-  if (!/^\d+(?:\.\d+)?$/.test(value))
-    throw new Error(`${label} must be a positive decimal.`);
+  if (!/^\d+(?:\.\d+)?$/.test(value)) throw new Error(`${label} must be a positive decimal.`);
   const number = new Decimal(value);
-  if (!number.isFinite() || number.lte(0))
-    throw new Error(`${label} must be greater than zero.`);
+  if (!number.isFinite() || number.lte(0)) throw new Error(`${label} must be greater than zero.`);
   return number;
 }
 
@@ -143,20 +140,12 @@ export function resolveExitExchange(tokenId: string, negRisk: boolean): string {
   const token = BigInt(assetId(tokenId));
   const reservedBits = ((1n << 64n) - 1n) << 40n;
   const key =
-    (token & reservedBits) === 0n
-      ? "exchangeV3"
-      : negRisk
-        ? "negRiskExchange"
-        : "standardExchange";
+    (token & reservedBits) === 0n ? "exchangeV3" : negRisk ? "negRiskExchange" : "standardExchange";
   const contracts: unknown = Reflect.get(production, "contracts");
   const exchange: unknown =
-    contracts && typeof contracts === "object"
-      ? Reflect.get(contracts, key)
-      : undefined;
+    contracts && typeof contracts === "object" ? Reflect.get(contracts, key) : undefined;
   if (typeof exchange !== "string" || !isAddress(exchange))
-    throw new Error(
-      "Could not verify the exchange for this market. Trading is disabled.",
-    );
+    throw new Error("Could not verify the exchange for this market. Trading is disabled.");
   return getAddress(exchange);
 }
 
@@ -185,9 +174,7 @@ export async function createTradingSession(
   };
   async function assertSession() {
     if (invalid)
-      throw new Error(
-        "Wallet connection changed. Reconnect and review your exit again.",
-      );
+      throw new Error("Wallet connection changed. Reconnect and review your exit again.");
     const [accounts, chain] = await Promise.all([
       provider.request({ method: "eth_accounts" }),
       provider.request({ method: "eth_chainId" }),
@@ -199,9 +186,7 @@ export async function createTradingSession(
       BigInt(chain) !== 137n
     ) {
       invalid = true;
-      throw new Error(
-        "Use the connected account on Polygon, then reconnect to Closeout.",
-      );
+      throw new Error("Use the connected account on Polygon, then reconnect to Closeout.");
     }
   }
   try {
@@ -240,9 +225,7 @@ export async function createTradingSession(
         },
         // Closeout neither deploys wallets nor silently changes approvals.
         sendTransaction: async () => {
-          throw new Error(
-            "Set up this account and its trading approvals on Polymarket first.",
-          );
+          throw new Error("Set up this account and its trading approvals on Polymarket first.");
         },
       },
     });
@@ -290,10 +273,7 @@ export async function createTradingSession(
             order.side.toUpperCase() === "SELL"
           ) {
             reserved = reserved.add(
-              Decimal.max(
-                0,
-                new Decimal(order.originalSize).sub(order.sizeMatched),
-              ),
+              Decimal.max(0, new Decimal(order.originalSize).sub(order.sizeMatched)),
             );
           }
         }
@@ -319,12 +299,9 @@ export async function createTradingSession(
       accountAddress: account,
       readBalances,
       async placeExit(request) {
-        if (submitting)
-          throw new Error("An exit submission is already in progress.");
+        if (submitting) throw new Error("An exit submission is already in progress.");
         if (uncertain)
-          throw new SubmissionUncertainError(
-            "A previous submission has not been reconciled.",
-          );
+          throw new SubmissionUncertainError("A previous submission has not been reconciled.");
         submitting = true;
         try {
           await assertSession();
@@ -333,14 +310,9 @@ export async function createTradingSession(
           const token = assetId(request.tokenId);
           const shares = decimal(request.shares, "Shares");
           const floor = decimal(request.floorPrice, "Minimum price");
-          if (floor.gte(1))
-            throw new Error(
-              "The minimum price must be below 1 pUSD per share.",
-            );
+          if (floor.gte(1)) throw new Error("The minimum price must be below 1 pUSD per share.");
           if (shares.decimalPlaces() > 2)
-            throw new Error(
-              "Use at most two decimal places for share quantity.",
-            );
+            throw new Error("Use at most two decimal places for share quantity.");
           if (request.orderType !== "FAK" && request.orderType !== "FOK")
             throw new Error("Choose FAK or FOK execution.");
           const [balances, book] = await Promise.all([
@@ -352,24 +324,17 @@ export async function createTradingSession(
               "Outcome-token trading approval is missing. Set it up on Polymarket first.",
             );
           if (shares.gt(balances.available))
-            throw new Error(
-              "The requested exit exceeds unreserved shares in this account.",
-            );
+            throw new Error("The requested exit exceeds unreserved shares in this account.");
           if (shares.lt(book.minOrderSize))
-            throw new Error(
-              `This market requires at least ${book.minOrderSize} shares per order.`,
-            );
+            throw new Error(`This market requires at least ${book.minOrderSize} shares per order.`);
           if (!floor.mod(new Decimal(String(book.tickSize))).eq(0))
-            throw new Error(
-              `Use a minimum price in increments of ${book.tickSize}.`,
-            );
+            throw new Error(`Use a minimum price in increments of ${book.tickSize}.`);
           const signed = await client.createMarketOrder({
             assetId: token,
             side: OrderSide.SELL,
             shares: shares.toFixed(),
             minPrice: floor.toFixed(),
-            orderType:
-              request.orderType === "FOK" ? OrderType.FOK : OrderType.FAK,
+            orderType: request.orderType === "FOK" ? OrderType.FOK : OrderType.FAK,
           });
           // A chain/account change while the signature prompt was open invalidates the order.
           await assertSession();
@@ -398,9 +363,7 @@ export async function createTradingSession(
           assetId: order.assetId,
         })) {
           if (++pages > 50)
-            throw new Error(
-              "Trade reconciliation is incomplete. Check the order on Polymarket.",
-            );
+            throw new Error("Trade reconciliation is incomplete. Check the order on Polymarket.");
           for (const trade of page.items) {
             if (
               trade.takerOrderId === id ||

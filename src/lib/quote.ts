@@ -37,12 +37,8 @@ export function buildQuote(
     a.push({
       price: b.price,
       shares: b.size,
-      cumulativeShares: new Decimal(prev?.cumulativeShares ?? "0")
-        .plus(b.size)
-        .toFixed(),
-      receipt: new Decimal(prev?.receipt ?? "0")
-        .plus(new Decimal(b.price).times(b.size))
-        .toFixed(),
+      cumulativeShares: new Decimal(prev?.cumulativeShares ?? "0").plus(b.size).toFixed(),
+      receipt: new Decimal(prev?.receipt ?? "0").plus(new Decimal(b.price).times(b.size)).toFixed(),
     });
     return a;
   }, []);
@@ -69,8 +65,7 @@ export function buildQuote(
   const blockers = result.blockers.map((b) => messages[b] ?? b);
   if (new Decimal(floorPrice).lte(0))
     blockers.push("Set a minimum price greater than 0 pUSD per share.");
-  if (!book.acceptingOrders)
-    blockers.push("This market is not currently accepting orders.");
+  if (!book.acceptingOrders) blockers.push("This market is not currently accepting orders.");
   if (new Decimal(shares).lt(book.minOrderSize))
     blockers.push(`The venue requires at least ${book.minOrderSize} shares.`);
   if (!new Decimal(floorPrice).mod(book.tickSize).eq(0))
@@ -93,10 +88,7 @@ export function buildQuote(
     netReceipt: estimate.netReceipt,
     averagePrice: estimate.weightedAveragePrice,
     worstPrice: estimate.worstFillPrice,
-    fillPercent: new Decimal(estimate.filledShares)
-      .div(shares)
-      .times(100)
-      .toNumber(),
+    fillPercent: new Decimal(estimate.filledShares).div(shares).times(100).toNumber(),
     depth,
     blockers,
     warnings: result.warnings,

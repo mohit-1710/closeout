@@ -5,13 +5,7 @@ const now = 100000,
   book = exampleBook("example-yes", now);
 describe("UI quote mapping", () => {
   it("preserves indicative gross depth when fees are unknown", () => {
-    const q = buildQuote(
-      { ...book, fee: { kind: "unknown" } },
-      "250",
-      "0.60",
-      "FAK",
-      now,
-    );
+    const q = buildQuote({ ...book, fee: { kind: "unknown" } }, "250", "0.60", "FAK", now);
     expect(q.status).toBe("blocked");
     expect(q.filledShares).toBe("140");
     expect(q.grossReceipt).toBe("85.05");
@@ -26,9 +20,7 @@ describe("UI quote mapping", () => {
   });
   it("blocks zero floors and unsupported share precision", () => {
     expect(buildQuote(book, "250", "0", "FAK", now).status).toBe("blocked");
-    expect(buildQuote(book, "10.123", "0.60", "FAK", now).status).toBe(
-      "blocked",
-    );
+    expect(buildQuote(book, "10.123", "0.60", "FAK", now).status).toBe("blocked");
   });
   it("blocks stale fetches without replacing timestamp with now", () => {
     const q = buildQuote(book, "250", "0.60", "FAK", now + 15001);
@@ -36,10 +28,9 @@ describe("UI quote mapping", () => {
     expect(q.snapshotAt).toBe(now);
   });
   it("blocks current market shutdown and off-tick floors", () => {
-    expect(
-      buildQuote({ ...book, acceptingOrders: false }, "250", "0.60", "FAK", now)
-        .status,
-    ).toBe("blocked");
+    expect(buildQuote({ ...book, acceptingOrders: false }, "250", "0.60", "FAK", now).status).toBe(
+      "blocked",
+    );
     expect(buildQuote(book, "250", "0.601", "FAK", now).status).toBe("blocked");
   });
 });

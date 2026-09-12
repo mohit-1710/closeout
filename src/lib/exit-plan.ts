@@ -159,16 +159,13 @@ function decimalText(value: Decimal): DecimalString {
   return value.isZero() ? "0" : value.toFixed();
 }
 
-function parseDecimal(
-  value: unknown,
-  path: string,
-  issues: ExitPlanIssue[],
-): Decimal | null {
+function parseDecimal(value: unknown, path: string, issues: ExitPlanIssue[]): Decimal | null {
   if (typeof value !== "string" || !DECIMAL_INPUT.test(value)) {
     issues.push({
       code: "invalid-decimal",
       path,
-      message: "Use a nonnegative decimal string with at most 18 digits on either side of the decimal point.",
+      message:
+        "Use a nonnegative decimal string with at most 18 digits on either side of the decimal point.",
     });
     return null;
   }
@@ -177,7 +174,11 @@ function parseDecimal(
 
 function parseFee(value: unknown, issues: ExitPlanIssue[]): ParsedFee | null {
   if (!isRecord(value)) {
-    issues.push({ code: "invalid-fee-model", path: "fee", message: "Provide known, explicitly zero, or unknown fees." });
+    issues.push({
+      code: "invalid-fee-model",
+      path: "fee",
+      message: "Provide known, explicitly zero, or unknown fees.",
+    });
     return null;
   }
   if (value.kind === "none") return { kind: "none" };
@@ -185,48 +186,108 @@ function parseFee(value: unknown, issues: ExitPlanIssue[]): ParsedFee | null {
     return { kind: "unknown", reason: typeof value.reason === "string" ? value.reason : undefined };
   }
   if (value.kind !== "known") {
-    issues.push({ code: "invalid-fee-model", path: "fee.kind", message: "Fee kind must be known, none, or unknown." });
+    issues.push({
+      code: "invalid-fee-model",
+      path: "fee.kind",
+      message: "Fee kind must be known, none, or unknown.",
+    });
     return null;
   }
   const rate = parseDecimal(value.rate, "fee.rate", issues);
   if (rate?.gt(ONE)) {
-    issues.push({ code: "out-of-range", path: "fee.rate", message: "Fee rate must be a decimal coefficient between 0 and 1." });
+    issues.push({
+      code: "out-of-range",
+      path: "fee.rate",
+      message: "Fee rate must be a decimal coefficient between 0 and 1.",
+    });
   }
   const exponent = value.exponent;
   if (typeof exponent !== "number" || !Number.isInteger(exponent) || exponent < 0 || exponent > 8) {
-    issues.push({ code: "unsupported-exponent", path: "fee.exponent", message: "An explicitly supplied integer fee exponent from 0 to 8 is required." });
+    issues.push({
+      code: "unsupported-exponent",
+      path: "fee.exponent",
+      message: "An explicitly supplied integer fee exponent from 0 to 8 is required.",
+    });
   }
   const roundingDecimals = value.roundingDecimals;
-  if (roundingDecimals !== undefined &&
-      (typeof roundingDecimals !== "number" || !Number.isInteger(roundingDecimals) || roundingDecimals < 0 || roundingDecimals > 18)) {
-    issues.push({ code: "invalid-fee-rounding", path: "fee.roundingDecimals", message: "Fee rounding precision must be an integer from 0 to 18, or omitted for the exact curve." });
+  if (
+    roundingDecimals !== undefined &&
+    (typeof roundingDecimals !== "number" ||
+      !Number.isInteger(roundingDecimals) ||
+      roundingDecimals < 0 ||
+      roundingDecimals > 18)
+  ) {
+    issues.push({
+      code: "invalid-fee-rounding",
+      path: "fee.roundingDecimals",
+      message:
+        "Fee rounding precision must be an integer from 0 to 18, or omitted for the exact curve.",
+    });
   }
   if (!rate || issues.length > 0) return null;
-  return { kind: "known", rate, exponent: exponent as number, roundingDecimals: roundingDecimals as number | undefined };
+  return {
+    kind: "known",
+    rate,
+    exponent: exponent as number,
+    roundingDecimals: roundingDecimals as number | undefined,
+  };
 }
 
 /** No Date.now(), I/O or mutable clock state: the caller supplies the observation time. */
 export function checkSnapshotFreshness(input?: SnapshotFreshnessInput): SnapshotFreshness {
   const failure = (status: "invalid" | "missing", reason: string): SnapshotFreshness => ({
-    status, isFresh: false, ageMs: null, clockSkewMs: null, maxAgeMs: null, reason,
+    status,
+    isFresh: false,
+    ageMs: null,
+    clockSkewMs: null,
+    maxAgeMs: null,
+    reason,
   });
-  if (input === undefined) return failure("missing", "The snapshot timestamp and age policy are required.");
+  if (input === undefined)
+    return failure("missing", "The snapshot timestamp and age policy are required.");
   if (!isRecord(input)) return failure("invalid", "Snapshot timing must be an object.");
   const { timestampMs, nowMs, maxAgeMs } = input;
   const skew = input.allowedFutureSkewMs === undefined ? 0 : input.allowedFutureSkewMs;
-  if (![timestampMs, nowMs, maxAgeMs, skew].every((v) =>
-    typeof v === "number" && Number.isSafeInteger(v) && v >= 0)) {
-    return failure("invalid", "Timestamps and age limits must be nonnegative safe integers in milliseconds.");
+  if (
+    ![timestampMs, nowMs, maxAgeMs, skew].every(
+      (v) => typeof v === "number" && Number.isSafeInteger(v) && v >= 0,
+    )
+  ) {
+    return failure(
+      "invalid",
+      "Timestamps and age limits must be nonnegative safe integers in milliseconds.",
+    );
   }
   const ageMs = nowMs - timestampMs;
   const clockSkewMs = Math.max(0, -ageMs);
   if (clockSkewMs > skew) {
-    return { status: "future", isFresh: false, ageMs, clockSkewMs, maxAgeMs, reason: "The snapshot is ahead of the supplied clock beyond the allowed skew." };
+    return {
+      status: "future",
+      isFresh: false,
+      ageMs,
+      clockSkewMs,
+      maxAgeMs,
+      reason: "The snapshot is ahead of the supplied clock beyond the allowed skew.",
+    };
   }
   if (ageMs > maxAgeMs) {
-    return { status: "stale", isFresh: false, ageMs, clockSkewMs, maxAgeMs, reason: "The snapshot exceeds the maximum permitted age." };
+    return {
+      status: "stale",
+      isFresh: false,
+      ageMs,
+      clockSkewMs,
+      maxAgeMs,
+      reason: "The snapshot exceeds the maximum permitted age.",
+    };
   }
-  return { status: "fresh", isFresh: true, ageMs: Math.max(0, ageMs), clockSkewMs, maxAgeMs, reason: null };
+  return {
+    status: "fresh",
+    isFresh: true,
+    ageMs: Math.max(0, ageMs),
+    clockSkewMs,
+    maxAgeMs,
+    reason: null,
+  };
 }
 
 function modeledFee(shares: Decimal, price: Decimal, fee: ParsedFee): Decimal | null {
@@ -240,9 +301,13 @@ function modeledFee(shares: Decimal, price: Decimal, fee: ParsedFee): Decimal | 
 
 function emptyEstimate(shares: Decimal, feesKnown: boolean): ExitFillEstimate {
   return {
-    filledShares: "0", remainingShares: decimalText(shares), grossReceipt: "0",
-    fees: feesKnown ? "0" : null, netReceipt: feesKnown ? "0" : null,
-    weightedAveragePrice: null, worstFillPrice: null,
+    filledShares: "0",
+    remainingShares: decimalText(shares),
+    grossReceipt: "0",
+    fees: feesKnown ? "0" : null,
+    netReceipt: feesKnown ? "0" : null,
+    weightedAveragePrice: null,
+    worstFillPrice: null,
   };
 }
 
@@ -253,21 +318,47 @@ function emptyEstimate(shares: Decimal, feesKnown: boolean): ExitFillEstimate {
 export function calculateExitPlan(input: ExitPlanInput): ExitPlanResult {
   const issues: ExitPlanIssue[] = [];
   if (!isRecord(input)) {
-    return { valid: false, indicative: true, issues: [{ code: "invalid-input", path: "", message: "An exit-plan object is required." }] };
+    return {
+      valid: false,
+      indicative: true,
+      issues: [{ code: "invalid-input", path: "", message: "An exit-plan object is required." }],
+    };
   }
   const shares = parseDecimal(input.shares, "shares", issues);
   const floorPrice = parseDecimal(input.floorPrice, "floorPrice", issues);
-  const minNetReceipt = parseDecimal(input.minNetReceipt === undefined ? "0" : input.minNetReceipt, "minNetReceipt", issues);
-  if (shares?.isZero()) issues.push({ code: "out-of-range", path: "shares", message: "Shares to sell must be greater than zero." });
-  if (floorPrice?.gt(ONE)) issues.push({ code: "out-of-range", path: "floorPrice", message: "The price floor must be between 0 and 1, inclusive." });
+  const minNetReceipt = parseDecimal(
+    input.minNetReceipt === undefined ? "0" : input.minNetReceipt,
+    "minNetReceipt",
+    issues,
+  );
+  if (shares?.isZero())
+    issues.push({
+      code: "out-of-range",
+      path: "shares",
+      message: "Shares to sell must be greater than zero.",
+    });
+  if (floorPrice?.gt(ONE))
+    issues.push({
+      code: "out-of-range",
+      path: "floorPrice",
+      message: "The price floor must be between 0 and 1, inclusive.",
+    });
   if (input.orderType !== "FAK" && input.orderType !== "FOK") {
-    issues.push({ code: "invalid-order-type", path: "orderType", message: "Select FAK or FOK explicitly." });
+    issues.push({
+      code: "invalid-order-type",
+      path: "orderType",
+      message: "Select FAK or FOK explicitly.",
+    });
   }
 
   const levels: { price: Decimal; size: Decimal; sourceIndex: number }[] = [];
   const seenPrices = new Set<string>();
   if (!Array.isArray(input.bids) || input.bids.length > MAX_BID_LEVELS) {
-    issues.push({ code: "invalid-bids", path: "bids", message: `Provide an array of at most ${MAX_BID_LEVELS} aggregated bid levels.` });
+    issues.push({
+      code: "invalid-bids",
+      path: "bids",
+      message: `Provide an array of at most ${MAX_BID_LEVELS} aggregated bid levels.`,
+    });
   } else {
     Array.from(input.bids).forEach((bid: unknown, sourceIndex: number) => {
       const path = `bids[${sourceIndex}]`;
@@ -278,13 +369,27 @@ export function calculateExitPlan(input: ExitPlanInput): ExitPlanResult {
       const price = parseDecimal(bid.price, `${path}.price`, issues);
       const size = parseDecimal(bid.size, `${path}.size`, issues);
       if (price && (price.lte(ZERO) || price.gte(ONE))) {
-        issues.push({ code: "out-of-range", path: `${path}.price`, message: "An open-book bid must have a price strictly between 0 and 1." });
+        issues.push({
+          code: "out-of-range",
+          path: `${path}.price`,
+          message: "An open-book bid must have a price strictly between 0 and 1.",
+        });
       }
-      if (size?.isZero()) issues.push({ code: "out-of-range", path: `${path}.size`, message: "Bid size must be greater than zero." });
+      if (size?.isZero())
+        issues.push({
+          code: "out-of-range",
+          path: `${path}.size`,
+          message: "Bid size must be greater than zero.",
+        });
       if (price) {
         const key = decimalText(price);
         if (seenPrices.has(key)) {
-          issues.push({ code: "duplicate-price", path: `${path}.price`, message: "Duplicate aggregated price level; verify the source instead of double-counting liquidity." });
+          issues.push({
+            code: "duplicate-price",
+            path: `${path}.price`,
+            message:
+              "Duplicate aggregated price level; verify the source instead of double-counting liquidity.",
+          });
         }
         seenPrices.add(key);
       }
@@ -308,15 +413,24 @@ export function calculateExitPlan(input: ExitPlanInput): ExitPlanResult {
 
   for (const level of levels) {
     const exclusionReason = level.price.lt(floorPrice)
-      ? "below-floor" as const
-      : remaining.isZero() ? "requested-amount-filled" as const : null;
+      ? ("below-floor" as const)
+      : remaining.isZero()
+        ? ("requested-amount-filled" as const)
+        : null;
     const take = exclusionReason ? ZERO : D.min(level.size, remaining);
     const stepGross = take.mul(level.price);
     const stepFee = modeledFee(take, level.price, fee);
     if (stepFee?.gt(stepGross)) {
       return {
-        valid: false, indicative: true,
-        issues: [{ code: "fee-exceeds-proceeds", path: `bids[${level.sourceIndex}]`, message: "This fee model or rounding would charge more than this fill's proceeds." }],
+        valid: false,
+        indicative: true,
+        issues: [
+          {
+            code: "fee-exceeds-proceeds",
+            path: `bids[${level.sourceIndex}]`,
+            message: "This fee model or rounding would charge more than this fill's proceeds.",
+          },
+        ],
       };
     }
     remaining = remaining.minus(take);
@@ -326,11 +440,15 @@ export function calculateExitPlan(input: ExitPlanInput): ExitPlanResult {
     if (take.gt(ZERO)) worst = level.price;
     depthSteps.push({
       sourceIndex: level.sourceIndex,
-      price: decimalText(level.price), availableShares: decimalText(level.size),
-      filledShares: decimalText(take), remainingShares: decimalText(remaining),
-      grossReceipt: decimalText(stepGross), fees: stepFee === null ? null : decimalText(stepFee),
+      price: decimalText(level.price),
+      availableShares: decimalText(level.size),
+      filledShares: decimalText(take),
+      remainingShares: decimalText(remaining),
+      grossReceipt: decimalText(stepGross),
+      fees: stepFee === null ? null : decimalText(stepFee),
       netReceipt: stepFee === null ? null : decimalText(stepGross.minus(stepFee)),
-      cumulativeFilledShares: decimalText(filled), cumulativeGrossReceipt: decimalText(gross),
+      cumulativeFilledShares: decimalText(filled),
+      cumulativeGrossReceipt: decimalText(gross),
       cumulativeFees: feesKnown ? decimalText(fees) : null,
       cumulativeNetReceipt: feesKnown ? decimalText(gross.minus(fees)) : null,
       exclusionReason,
@@ -338,17 +456,21 @@ export function calculateExitPlan(input: ExitPlanInput): ExitPlanResult {
   }
 
   const available: ExitFillEstimate = {
-    filledShares: decimalText(filled), remainingShares: decimalText(remaining),
-    grossReceipt: decimalText(gross), fees: feesKnown ? decimalText(fees) : null,
+    filledShares: decimalText(filled),
+    remainingShares: decimalText(remaining),
+    grossReceipt: decimalText(gross),
+    fees: feesKnown ? decimalText(fees) : null,
     netReceipt: feesKnown ? decimalText(gross.minus(fees)) : null,
-    weightedAveragePrice: filled.isZero() ? null : decimalText(gross.div(filled).toDecimalPlaces(18, Decimal.ROUND_DOWN)),
+    weightedAveragePrice: filled.isZero()
+      ? null
+      : decimalText(gross.div(filled).toDecimalPlaces(18, Decimal.ROUND_DOWN)),
     worstFillPrice: worst === null ? null : decimalText(worst),
   };
   const zero = emptyEstimate(shares, feesKnown);
   const fokInsufficient = input.orderType === "FOK" && remaining.gt(ZERO);
   const orderEstimate = fokInsufficient ? zero : available;
-  const meetsMinNetReceipt = orderEstimate.netReceipt === null
-    ? null : new D(orderEstimate.netReceipt).gte(minNetReceipt);
+  const meetsMinNetReceipt =
+    orderEstimate.netReceipt === null ? null : new D(orderEstimate.netReceipt).gte(minNetReceipt);
   const freshness = checkSnapshotFreshness(input.snapshot);
   const blockers: ExitPlanBlocker[] = [];
   if (!feesKnown) blockers.push("unknown-fees");
@@ -358,30 +480,48 @@ export function calculateExitPlan(input: ExitPlanInput): ExitPlanResult {
   if (meetsMinNetReceipt === false) blockers.push("min-net-receipt-not-met");
 
   // A minimum-receipt veto is a policy block, not a claim that FAK enforces it.
-  const policyBlocked = !feesKnown || !freshness.isFresh ||
+  const policyBlocked =
+    !feesKnown ||
+    !freshness.isFresh ||
     (!fokInsufficient && filled.gt(ZERO) && meetsMinNetReceipt === false);
-  const status: ExitPlan["status"] = policyBlocked ? "blocked"
-    : (filled.isZero() || fokInsufficient) ? "no-fill"
-    : remaining.isZero() ? "full" : "partial";
+  const status: ExitPlan["status"] = policyBlocked
+    ? "blocked"
+    : filled.isZero() || fokInsufficient
+      ? "no-fill"
+      : remaining.isZero()
+        ? "full"
+        : "partial";
   const warnings = [
     "Indicative order-book snapshot only; prices, depth, fees and matching delays can change before execution.",
     "Net receipt subtracts only the supplied sell-fee model; gas, builder, intermediary and conversion charges are not included.",
     "A passing minimum-receipt check is not an enforced or guaranteed whole-order receipt, including for FAK partial fills.",
   ];
   if (fee.kind === "known") {
-    warnings.push(fee.roundingDecimals === undefined
-      ? "Fees use the unrounded curve; actual match-level rounding and splitting can change the receipt."
-      : "Fees assume half-up rounding once per displayed price level; actual matches may split that level and round differently.");
+    warnings.push(
+      fee.roundingDecimals === undefined
+        ? "Fees use the unrounded curve; actual match-level rounding and splitting can change the receipt."
+        : "Fees assume half-up rounding once per displayed price level; actual matches may split that level and round differently.",
+    );
   }
-  if (fee.kind === "unknown" && fee.reason) warnings.push(`Fee information unavailable: ${fee.reason}`);
+  if (fee.kind === "unknown" && fee.reason)
+    warnings.push(`Fee information unavailable: ${fee.reason}`);
 
   return {
-    valid: true, indicative: true, status, orderType: input.orderType,
-    requestedShares: decimalText(shares), floorPrice: decimalText(floorPrice),
-    minNetReceipt: decimalText(minNetReceipt), available,
+    valid: true,
+    indicative: true,
+    status,
+    orderType: input.orderType,
+    requestedShares: decimalText(shares),
+    floorPrice: decimalText(floorPrice),
+    minNetReceipt: decimalText(minNetReceipt),
+    available,
     estimate: policyBlocked ? zero : orderEstimate,
-    depthSteps, freshness, meetsMinNetReceipt,
+    depthSteps,
+    freshness,
+    meetsMinNetReceipt,
     passesSnapshotChecks: blockers.length === 0,
-    minimumReceiptIsGuaranteed: false, blockers, warnings,
+    minimumReceiptIsGuaranteed: false,
+    blockers,
+    warnings,
   };
 }

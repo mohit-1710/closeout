@@ -8,3 +8,6 @@ test-results/
 .DS_Store
 docs/vendor/
 .vercel/
+/brand.md.bak
+/src/app/globals.css.bak
+/.artifacts/

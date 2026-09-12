@@ -1,11 +1,6 @@
 import type { TrackedOrder } from "./types";
 const HISTORY_LIMIT = 100;
-const activeStates = new Set<TrackedOrder["status"]>([
-  "unknown",
-  "open",
-  "matched",
-  "settling",
-]);
+const activeStates = new Set<TrackedOrder["status"]>(["unknown", "open", "matched", "settling"]);
 
 /** Keep unresolved execution evidence even when newer completed orders fill history. */
 export function compactOrderHistory(orders: TrackedOrder[]): TrackedOrder[] {
@@ -15,8 +10,7 @@ export function compactOrderHistory(orders: TrackedOrder[]): TrackedOrder[] {
       "Too many unresolved orders to safely save history. Review existing orders before continuing.",
     );
   }
-  const newestFirst = (a: TrackedOrder, b: TrackedOrder) =>
-    b.createdAt - a.createdAt;
+  const newestFirst = (a: TrackedOrder, b: TrackedOrder) => b.createdAt - a.createdAt;
   const terminal = orders
     .filter((order) => !activeStates.has(order.status))
     .sort(newestFirst)
@@ -24,8 +18,7 @@ export function compactOrderHistory(orders: TrackedOrder[]): TrackedOrder[] {
   return [...active, ...terminal].sort(newestFirst);
 }
 
-const decimal = (v: unknown) =>
-  typeof v === "string" && /^\d{1,18}(?:\.\d{1,18})?$/.test(v);
+const decimal = (v: unknown) => typeof v === "string" && /^\d{1,18}(?:\.\d{1,18})?$/.test(v);
 const nullableDecimal = (v: unknown) => v === null || decimal(v);
 const states = new Set([
   "open",
@@ -40,8 +33,7 @@ const states = new Set([
 /** Corruption must block execution, not silently discard an unresolved intent. */
 export function decodeOrderHistory(raw: string | null): TrackedOrder[] {
   if (raw === null) return [];
-  if (raw.length > 1_000_000)
-    throw new Error("Order history is too large to verify.");
+  if (raw.length > 1_000_000) throw new Error("Order history is too large to verify.");
   const values: unknown = JSON.parse(raw);
   if (!Array.isArray(values) || values.length > HISTORY_LIMIT)
     throw new Error("Order history format is invalid.");
@@ -75,9 +67,7 @@ export function decodeOrderHistory(raw: string | null): TrackedOrder[] {
       v.createdAt < 0 ||
       typeof v.canCancel !== "boolean" ||
       !Array.isArray(v.transactionHashes) ||
-      !v.transactionHashes.every(
-        (h) => typeof h === "string" && /^0x[\da-fA-F]{64}$/.test(h),
-      ) ||
+      !v.transactionHashes.every((h) => typeof h === "string" && /^0x[\da-fA-F]{64}$/.test(h)) ||
       (v.orderType !== "FAK" && v.orderType !== "FOK")
     )
       throw new Error("Saved order history could not be verified.");
