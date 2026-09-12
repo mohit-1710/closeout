@@ -1,25 +1,55 @@
-# Closeout demo — about 3 minutes
+# Closeout demo — target 2:45
 
-Record your own voice and normal-speed screen capture, at least 720p. This is a rehearsal script, not an AI narration track. Recheck the private submission dashboard before recording.
+Use your own human narration and normal-speed screen capture. The finalist brief is **2–4 minutes, at least 720p, clear speech rather than music**. Aim for 2:45, leaving room inside the limit for natural pauses. This is a recording script, not a completed video or generated voice track.
 
-**0:00–0:25 — User and problem**
+Open [Closeout](https://closeout-ashen.vercel.app) in a clean browser window at a readable size. Begin in **Live** mode, with no wallet connected. Keep the actual UI and its mode labels visible. No live trade, wallet selection or signature is needed for this recording. Follow the [recording and export checklist](video-checklist.md).
 
-“Closeout is for a prediction trader who wants to exit an existing position. The last displayed price does not tell them how much their whole position can sell for, what fees remove, or what remains unsold. We put that exit decision in one place.”
+## 0:00–0:18 — The exit decision
 
-**0:25–1:10 — Live data**
+**Show:** The Closeout workspace and its headline. Point to the exit ticket.
 
-Start in Live mode. Open a current market and show its bids. Enter the number of shares and a minimum price per share. Move the floor and point to estimated proceeds and unsold shares. Open the table so the estimate is traceable to actual bid levels. Explain that the snapshot is indicative and refreshes before review.
+> Closeout helps a prediction trader understand an exit before signing. A displayed market price does not tell you how much your whole position can sell for, what fees remove, or what remains unsold. This workspace brings those numbers together.
 
-**1:10–1:55 — Partial versus all-or-none**
+## 0:18–0:50 — Real book, indicative quote
 
-Explicitly choose Example mode: “These are fictional values so I can demonstrate the failure cases without moving funds.” Keep the default 250 shares and 0.60 floor in the Atlas market. There are 140 shares at/above the floor; 110 remain unsold. Switch to FOK: the entire exit is blocked because the available depth cannot fill 250. Return to FAK, review, and simulate. Show the simulation badge and fictional partial result.
+**Show:** Select a current live market. Enter an illustrative share amount and a valid minimum price. Toggle to bid levels, then back to the depth chart. Point to gross proceeds, venue fee, estimated net and remaining shares. These inputs are a plan, not a claim that you own the shares.
 
-**1:55–2:35 — Existing account and lifecycle**
+> Here is a current Polymarket book. I can inspect the available bids, enter a share amount, and set a minimum price per share. The quote estimates proceeds after the venue fee and shows what may remain unsold. It is a snapshot, not a guaranteed fill. Network, intermediary and conversion costs are excluded.
 
-Show the wallet/position dialog. Explain that an entered public address is watch-only; the owner must connect and authorize the account. Closeout checks unreserved holdings and the correct token allowance, refreshes the quote, then asks for an explicit signed SELL. Matched is separate from confirmed settlement. A lost submission response locks retries instead of sending another sell. Show only the integration you actually verified; if no real wallet/trade was tested, say so plainly.
+**If the live source is unavailable:** Show the actual error and replace the live narration with: “The live source is unavailable in this capture. I’m explicitly switching to Example mode to demonstrate the planner.” Do not describe the example as live data. Use the remaining time to explain the visible bid table and price floor.
 
-**2:35–3:00 — Company path and next proof**
+## 0:50–1:22 — Make partial liquidity visible
 
-“The wedge is a reliable exit workflow for active traders. Next we test it with traders holding positions that are awkward to unwind, measure completed exits and repeated use, and test willingness to pay. We are not claiming demand or savings from the simulation.”
+**Show:** Click **Example**. Select the Atlas market, Yes outcome. Set **250 shares**, **0.60 pUSD/share**, and **Sell available**. Hold the fillable and unsold rows long enough to read. Select **All or nothing**, show the blocked state, then return to **Sell available**.
 
-If Privy is configured, demonstrate its actual wallet connection step and name its necessary role. If it is not configured, omit any claim that the sponsor integration was demonstrated.
+> I’m choosing Example mode now. These markets, balances and fills are fictional. At a floor of zero point six pUSD per share, only one hundred forty of the two hundred fifty requested shares can fill. One hundred ten remain unsold. All or nothing blocks the exit because the book cannot fill the whole amount at my floor. Sell available permits the partial plan.
+
+If the earlier live-error fallback already switched modes, begin with “We’re in Example mode now.”
+
+## 1:22–1:52 — Review and follow the result
+
+**Show:** Click **Review simulated exit**. Pause on requested shares, floor, fillable shares, fees and remainder. Click **Simulate exit**. Show **Partially settled**, **Simulated**, and the fictional-result explanation in Activity. Do not show a real transaction explorer or invent a receipt.
+
+> Review keeps the price floor, fillable amount, fee and remainder together before confirmation. I’ll simulate this partial exit. Activity explicitly labels the result as simulated; no funds moved. The implementation distinguishes a match from confirmed settlement. This recording does not demonstrate a real settled trade, a real receipt, or measured savings.
+
+## 1:52–2:24 — Account ownership and Privy
+
+**Show:** Open the wallet and positions dialog. Point to the read-only public-address field without entering a real account. Click the inner wallet-connect control to open the configured **Privy wallet chooser**. Show the chooser, dismiss it, and return to Closeout. Do not select a wallet or authenticate.
+
+> Entering a public address is read-only; it does not authorize trading. Privy opens the chooser for the account owner’s existing wallet. I’m stopping at that chooser, without connecting or signing. Live execution requires the owner’s authorization and checks holdings and allowances. An uncertain submission is kept unresolved so a missing response does not invite a duplicate sell.
+
+Only record the chooser if it actually opens on the recording origin. The current evidence covers opening, dismissing and reopening it, not successful wallet authentication or a live order. If it fails during rehearsal, resolve the setup before recording or state that limitation rather than implying a completed connection.
+
+## 2:24–2:45 — The next proof
+
+**Show:** Return to the exit ticket and the clearly labeled example Activity. End on the product, not a terminal or unverified metric slide.
+
+> The next test is with repeat prediction traders holding positions that are awkward to unwind. We need to observe completed exits and repeated use, then test willingness to pay. Today’s demo shows a working planner, public-data integration and a labeled simulation. It does not establish customer demand.
+
+## Rehearsal notes
+
+- The spoken copy is approximately 309 words. Read naturally at about 130–140 words per minute, with short pauses for clicks and numbers. The exported file’s actual length decides compliance; the timeline is a target.
+- If long, shorten the technical explanation before cutting the partial-fill demonstration or its fictional labels. Keep all mode switches and the final result understandable.
+- Use **pUSD** for displayed proceeds. A receipt estimate is not a bank withdrawal or final reconciled net proceeds.
+- No paid customer, real trade, fee saving, deployment, sponsor eligibility or award is established by this recording. Only add a claim if its separate evidence exists.
+- Recording, human narration and submission remain owner actions. Nothing in this package has been uploaded or submitted.
