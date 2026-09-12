@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="320" viewBox="0 0 1280 320" fill="none" role="img" aria-labelledby="title description">
+  <title id="title">Closeout</title>
+  <desc id="description">Prediction market exits. Read the bids. Set a floor. Track the outcome. Flat dark green and lime banner with an exit arrow and three bid levels.</desc>
+  <rect x="1" y="1" width="1278" height="318" rx="22" fill="#101512" stroke="#334037" stroke-width="2"/>
+  <text x="56" y="57" fill="#c8ee8d" font-family="Arial, Helvetica, sans-serif" font-size="13" letter-spacing="2.7">PREDICTION MARKET EXITS</text>
+  <g transform="translate(54 91) scale(2.65)" fill="#c8ee8d">
+    <path d="M5 7h10v6H9v12H5V7Z"/>
+    <path d="M15 19h8l-4-4 3-3 9 9-9 9-3-3 4-4h-8v-4Z"/>
+    <path d="M19 3h8v8h-4V7h-4V3Z" opacity=".45"/>
+  </g>
+  <text x="158" y="162" fill="#f0f4ef" font-family="Arial, Helvetica, sans-serif" font-size="75" font-weight="700" letter-spacing="-3">closeout</text>
+  <text x="56" y="226" fill="#f0f4ef" font-family="Arial, Helvetica, sans-serif" font-size="26">Read the bids. Set a floor. Track the outcome.</text>
+  <path d="M56 255H816" stroke="#334037"/>
+  <text x="56" y="284" fill="#c8ee8d" font-family="Arial, Helvetica, sans-serif" font-size="12" letter-spacing="2">POLYGON  /  BROWSER SIGNING  /  ETHONLINE 2026</text>
+  <rect x="898" y="44" width="326" height="232" rx="12" fill="#171d19" stroke="#334037"/>
+  <text x="922" y="78" fill="#f0f4ef" font-family="Arial, Helvetica, sans-serif" font-size="12" letter-spacing="2">AT YOUR PRICE FLOOR</text>
+  <rect x="922" y="103" width="238" height="18" rx="3" fill="#c8ee8d"/>
+  <rect x="922" y="135" width="176" height="18" rx="3" fill="#c8ee8d"/>
+  <path d="M918 170H1202" stroke="#c8ee8d" stroke-width="2" stroke-dasharray="5 5"/>
+  <rect x="922" y="187" width="98" height="18" rx="3" fill="#334037"/>
+  <text x="922" y="246" fill="#f0f4ef" font-family="Arial, Helvetica, sans-serif" font-size="12">LIVE DEPTH. INDICATIVE ESTIMATES.</text>
+</svg>
