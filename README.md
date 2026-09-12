@@ -126,6 +126,8 @@ The separate [GitHub workflow](.github/workflows/checks.yml) installs locked dep
 
 The [public deployment](https://closeout-ashen.vercel.app) passed unauthenticated page, market discovery and order-book reads on September 12 at 15:55 UTC: 40 markets returned, and the inspected book included known fee metadata. [Deployment evidence](docs/qa/deployment-public-reads.json) · [Deployment setup](docs/deployment.md). These checks did not authenticate a wallet or place an order.
 
+The deployed Privy chooser also passed **4 checks** at 16:00 UTC after its production origin was allowed: public config, opening, dismissal/reopening and absence of wallet/account/order actions. [Production chooser evidence](docs/qa/privy-integration-production.json). No wallet was selected or authenticated.
+
 **No real wallet was connected or used to sign. No real order, cancellation, approval, deposit or withdrawal was sent.** No paying users, measured savings or sponsor eligibility are claimed. The [dependency snapshot](docs/qa/dependency-audit.json) retains moderate wallet-stack advisories; this is not an independent security audit.
 
 ## Run locally

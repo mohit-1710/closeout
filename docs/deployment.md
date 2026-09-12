@@ -11,7 +11,7 @@ The first published production deployment, `dpl_8CHHimJsxTDHGbHBpZsDjvo4zT4D`, r
 
 `NEXT_PUBLIC_PRIVY_APP_ID` is the only configured application environment variable. It is a public browser identifier, set for production, preview and development. The app does not require a Privy secret. Environment changes affecting this public variable require a new build.
 
-Allow **https://closeout-ashen.vercel.app** in Privy's Closeout app before using wallet login. At the September 12, 15:58 UTC check, only the two localhost origins were allowed; production origin setup remains pending. See [Privy setup](privy-setup.md) for the current verification boundary.
+**https://closeout-ashen.vercel.app** is allowed in Privy's Closeout app alongside both localhost origins. Mohit added it after deployment. At September 12, 16:00 UTC, public configuration and all four isolated deployed chooser checks passed. The [report](qa/privy-integration-production.json) covers public config and opening, dismissing and reopening the chooser; it does not establish authenticated wallet execution. See [Privy setup](privy-setup.md).
 
 The venue's public APIs must be reachable from the server. Wallet authentication, geography checks, signing and orders run in the user's browser. Server location does not establish a user's geographic eligibility.
 

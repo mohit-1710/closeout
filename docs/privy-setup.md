@@ -4,14 +4,14 @@ Updated September 12, 2026 IST. The current Privy app is **Closeout**, with publ
 
 It is configured as `NEXT_PUBLIC_PRIVY_APP_ID` in the Git-ignored `.env.local`, and the development server was restarted. The integration requires no app secret or custom client ID. An app secret was exposed in the conversation; revoke that exposed secret in Privy. Closeout does not use it, and no replacement secret is needed for this browser integration.
 
-The new app's public SDK configuration was verified with HTTP 200, name `Closeout`, `wallet_auth: true`, and exactly these allowed origins:
+The new app's initial local SDK configuration was verified with HTTP 200, name `Closeout`, `wallet_auth: true`, and these allowed origins:
 
 - `http://localhost:3000`
 - `http://127.0.0.1:3000`
 
 Local name and origin setup is complete. The public configuration endpoint is `https://auth.privy.io/api/v1/apps/cmtxg359900sd0cjp3cacl9m6`, using the public `privy-app-id` header and an `Origin`; no authenticated dashboard API is needed to check these values.
 
-The app is now deployed at **https://closeout-ashen.vercel.app**. Vercel production, preview and development environments have the public App ID configured. A fresh public configuration read at September 12, 15:58 UTC still listed only the two local origins: add the exact production origin in Privy before testing deployed wallet login. Preview URLs also require their own approved origins if they are to support login. No deployed chooser success is claimed yet. See [deployment setup](deployment.md).
+The app is now deployed at **https://closeout-ashen.vercel.app**. Vercel production, preview and development environments have the public App ID configured. Mohit added the production origin, and public configuration at September 12, 16:00 UTC verified all three origins. The [deployed chooser check](qa/privy-integration-production.json) passed all four checks: public config, actionable chooser, dismissal/reopening, and no account/signature/order action. No wallet was selected or authenticated. Preview URLs also require their own approved origins if they are to support login. See [deployment setup](deployment.md).
 
 `npm run test:privy` uses a fresh isolated Chromium context and actual public Privy configuration. It opens Closeout’s wallet dialog, invokes its inner Connect button, verifies the Privy chooser is actionable, dismisses it and repeats. It selects no wallet and creates no authentication, linked account, signature or order. Only the exact anonymous Privy analytics endpoint is allowed to POST; other writes are blocked. All four smoke checks passed for the new Closeout app, and the production build also passed with its public ID configured. The [current smoke report](qa/privy-integration-current.json) and [public configuration check](qa/privy-dashboard-config.json) record the new App ID, name and origins.
 

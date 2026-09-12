@@ -18,4 +18,6 @@ The public repository is [mohit-1710/closeout](https://github.com/mohit-1710/clo
 
 Vercel's production deployment for that commit reached READY at [closeout-ashen.vercel.app](https://closeout-ashen.vercel.app). Public GET smoke checks at September 12, 15:55:50 UTC passed: page HTTP 200 with the Closeout title; 40 markets; an inspected book with 20 bids, 67 asks and known fee metadata. These observations are a snapshot, not fixed market quantities. See [deployment-public-reads.json](deployment-public-reads.json) and [deployment setup](../deployment.md).
 
-The deployed Privy origin is pending owner configuration and a chooser check. No event submission is verified. Browser simulations contain no transaction hashes and are labeled as fictional; no real order was sent.
+After Mohit added the deployed origin, `BASE_URL=https://closeout-ashen.vercel.app QA_LABEL=production npm run test:privy` passed all four checks at September 12, 16:00 UTC. [Report](privy-integration-production.json). This isolated browser read public configuration, opened/dismissed/reopened the chooser and selected no wallet. One CDN background challenge POST was deliberately blocked by the harness; there were no page errors or attempted authentication/order actions. Real wallet login and execution remain untested.
+
+No event submission is verified. Browser simulations contain no transaction hashes and are labeled as fictional; no real order was sent.

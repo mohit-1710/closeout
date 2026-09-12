@@ -44,7 +44,7 @@ Codex generated and revised substantial parts of the app source, tests and docum
 
 ## Privy integration field
 
-Privy supplies the external-wallet chooser for the owner of an existing Polymarket account. The Closeout app is configured with wallet authentication and both local development origins. An isolated browser test verifies that its real chooser opens, closes and reopens without selecting a wallet. The subsequent owner authorization and financial flow are implemented but have not been exercised with a real account. We have not yet demonstrated the completed financial flow required for the Best financial flow prize.
+Privy supplies the external-wallet chooser for the owner of an existing Polymarket account. The Closeout app is configured with wallet authentication, both local development origins and its deployed origin. Isolated browser tests verify that its real chooser opens, closes and reopens locally and on the deployed app without selecting a wallet. The subsequent owner authorization and financial flow are implemented but have not been exercised with a real account. We have not yet demonstrated the completed financial flow required for the Best financial flow prize.
 
 ## Partner feedback field
 
