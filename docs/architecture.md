@@ -1,12 +1,12 @@
 # Closeout architecture
 
-This document describes the implementation in this repository as of September 12, 2026. Closeout helps an existing Polymarket account holder inspect bid depth, plan a sell within a gross price floor, and follow the order’s state. The product site explains that workflow; `/app` contains it.
+This document describes the implementation in this repository as of September 12, 2026. Closeout starts with an existing Polymarket position: import a public portfolio, choose what to sell, inspect bid depth, set a gross price floor, then review and follow the order’s state. The product site explains that workflow; `/app` contains it.
 
 Public reads, fictional examples and opening the wallet chooser have been exercised. End-to-end owner authentication and a real trade remain unverified. Implemented safeguards and mocked service tests do not establish successful live execution, final net proceeds or measured user savings.
 
 ## High-level design
 
-Closeout is one Next.js application with server-rendered product pages, a client-side workspace and three public-data route handlers. It has no application database, background worker, server order endpoint or Closeout smart contract.
+Closeout is one Next.js application with server-rendered product pages, a client-side workspace and four public-data route handlers. It has no application database, background worker, server order endpoint or Closeout smart contract.
 
 ```mermaid
 flowchart TB
@@ -16,7 +16,7 @@ flowchart TB
   UI["/app<br/>ExitWorkspace"]
   Hook["useExitWorkspace<br/>Selection, review, lifecycle orchestration"]
   Math["Pure exit model<br/>Decimal bid sweep + fee estimate"]
-  ReadAPI["Next GET routes<br/>markets / book / positions"]
+  ReadAPI["Next GET routes<br/>profile / positions / markets / book"]
   Sources["Public Polymarket providers<br/>Gamma / CLOB / Data API"]
   Wallet["Owner wallet<br/>Privy chooser or injected provider"]
   Session["Browser TradingSession<br/>Owner and account preflight"]
@@ -48,11 +48,12 @@ The server supplies public information, not trade authority. Authenticated venue
 | [ExitPreview](../src/components/exit-preview.tsx) | A small client interaction using the fictional Atlas book and the same quote calculation as the workspace. It does not authorize orders. |
 | [/app layout](../src/app/app/layout.tsx) | Mounts wallet infrastructure only within the trading destination. |
 | [/app page](../src/app/app/page.tsx) | Selects `example` only for the explicit `mode=example` value; otherwise selects `live`. A keyed [TradingWorkspace](../src/components/trading-workspace.tsx) initializes the controller. |
+| [/api/profile](../src/app/api/profile/route.ts) | Resolves a supported public profile input or connected-wallet address to a public position account. It does not establish ownership. |
 | [/api/markets](../src/app/api/markets/route.ts) | Public discovery, search or exact condition lookup. |
 | [/api/book](../src/app/api/book/route.ts) | Public book and market metadata, bound to a requested condition and outcome token. |
 | [/api/positions](../src/app/api/positions/route.ts) | Read-only positions for a public account address. |
 
-All three API routes are Node-runtime, GET-only, dynamic and `no-store`. They return input errors as 400 and upstream/normalization failures as 502. There is no server signing, approval, funding or order-placement route.
+All four API routes are Node-runtime, GET-only, dynamic and `no-store`. They return input errors as 400 and upstream/normalization failures as 502; profile resolution also returns an actionable 404 when no supported unique mapping can be established. There is no server signing, approval, funding or order-placement route.
 
 The shared theme lives in [globals.css](../src/app/globals.css). Tailwind CSS v4 utilities and `@apply` handle layout, spacing, typography and responsive rules; referenced component styles retain token-based illustrations and specific interaction selectors. Public-page client islands are limited to navigation and the local example. Loading the explanatory pages does not mount the `/app` wallet provider.
 
@@ -63,7 +64,9 @@ The shared theme lives in [globals.css](../src/app/globals.css). Tailwind CSS v4
 | Module | Owns | Does not own |
 | --- | --- | --- |
 | [types.ts](../src/lib/types.ts) | UI DTOs: `Market`, `OrderBook`, `Position`, `ExitQuote`, `TrackedOrder`, `WorkspaceController`. | Provider parsing, wallet authority or arithmetic. |
+| [account-profile.ts](../src/lib/account-profile.ts) | `AccountProfile`, input parsing, exact public-profile resolution and fixed-origin Gamma reads. | Ownership proof, session creation or guessing a proxy from an owner address. |
 | [public-data.ts](../src/lib/public-data.ts) | Fixed-origin fetches, query validation, exact numeric parsing, provider-to-DTO normalization, source identity checks. Its fetcher is injectable. | Authentication, trading or automatic source substitution. |
+| [recent-profile.ts](../src/lib/recent-profile.ts) | A validated, optional bookmark for the last successfully loaded public account. | Restoring positions, a trusted account mapping, a wallet connection or trade authority. |
 | [exit-plan.ts](../src/lib/exit-plan.ts) | Pure, non-mutating decimal bid sweep, fee model, order-type semantics and caller-supplied freshness policy. | Network, clock reads, wallet state, signatures or settlement assertions. |
 | [quote.ts](../src/lib/quote.ts) | Maps the domain plan into `ExitQuote`; applies the workspace’s age, tick, size, share-precision and accepting-orders checks. | Enforcing an after-fee receipt at the venue. |
 | [wallet-provider.tsx](../src/components/wallet-provider.tsx) | `TradingWalletContext`, explicit connection, Polygon selection, provider access and account/network invalidation. | Inferring that an arbitrary loaded portfolio is owned by the connected signer. |
@@ -71,7 +74,10 @@ The shared theme lives in [globals.css](../src/app/globals.css). Tailwind CSS v4
 | [order-status.ts](../src/lib/order-status.ts) | Pure reconciliation of a saved order against venue order/trade identities and confirmed quantities. | Treating acceptance as settlement or computing final net proceeds. |
 | [order-history.ts](../src/lib/order-history.ts) | Validation and bounded compaction of saved live-order records. | Storage transport, cross-tab locking or remote backup. |
 | [use-exit-workspace.ts](../src/hooks/use-exit-workspace.ts) | Orchestration: selection, data loading, review state, account session, persistence, polling, errors and export. Returns the screen controller. | Rendering or changing the venue’s execution semantics. |
-| [ExitWorkspace](../src/components/exit-workspace.tsx) | Responsive presentation, labeled inputs, depth view, dialogs and controller callbacks. | Direct SDK trading calls. |
+| [ExitWorkspace](../src/components/exit-workspace.tsx) | Entry/portfolio/plan/activity navigation and deliberate connection intent. | Account resolution, arithmetic or direct SDK trading calls. |
+| [journey/onboarding.tsx](../src/components/journey/onboarding.tsx) | Wallet/public-profile entry, portfolio states and position selection. | Inferring trade authority from public holdings. |
+| [journey/exit-planner.tsx](../src/components/journey/exit-planner.tsx) | Amount/floor controls, depth ladder, cost breakdown and next-action presentation. | Reserving liquidity or placing an order. |
+| [journey/review-dialog.tsx](../src/components/journey/review-dialog.tsx), [activity-view.tsx](../src/components/journey/activity-view.tsx), [primitives.tsx](../src/components/journey/primitives.tsx) | Review disclosure, order evidence and shared display primitives. | Authenticated venue access or settlement reconciliation. |
 
 ### Data contracts that carry financial meaning
 
@@ -84,13 +90,26 @@ The shared theme lives in [globals.css](../src/app/globals.css). Tailwind CSS v4
 
 ### Public read and planning flow
 
-1. The controller fetches market discovery/search, then a condition-bound outcome book. Request counters, abort handling and context keys prevent late results from updating a different selection or account.
-2. `public-data.ts` validates market, condition and token membership; book and metadata must agree on tick and minimum size. Duplicate levels, crossed books, conflicting market copies and mismatched positions fail instead of silently producing a quote.
-3. Provider requests use fixed origins/paths, omitted credentials, rejected redirects and a 12-second timeout. Response text is checked against a size limit before parsing; this is not a streaming body-size limiter.
-4. The model sorts a copy of eligible bids, consumes highest prices first and estimates the supplied fee per consumed level. `quote.ts` adds a 15-second maximum fetch age, minimum order size, allowed tick, nonzero floor and at most two decimals for shares.
-5. The visible book refreshes every 10 seconds while the document is visible, except during review or submission. The UI’s age clock updates every second. Review obtains a fresh book; an old preview never reserves liquidity.
+1. Live mode opens at portfolio entry, with no selected market or prefilled share amount. A user can connect an existing wallet to find its public account, or enter a Polymarket profile URL, handle or account address without connecting. Example mode opens a clearly fictional portfolio; it also requires an explicit position selection.
+2. `/api/profile` resolves the input before `/api/positions` reads that account's holdings. Profile errors and position-fetch errors are separate. Manual text remains intact for correction or retry; `resolvedInput` binds the normalized original entry to the account that it resolved, rather than requiring a profile URL to equal an address.
+3. Selecting a position looks up its condition, checks outcome-token membership and requests the matching book. The amount starts from that position's shares, rounded down to supported precision. Once bids arrive, an empty floor is initialized to the highest bid. A refresh preserves an edited floor. Redeemable positions link to venue redemption instead of open-market selling.
+4. `public-data.ts` validates market, condition and token membership; book and metadata must agree on tick and minimum size. Duplicate levels, crossed books, conflicting market copies and mismatched positions fail instead of silently producing a quote.
+5. The model sorts a copy of eligible bids, consumes highest prices first and estimates the supplied fee per consumed level. `quote.ts` adds a 15-second maximum fetch age, minimum order size, allowed tick, nonzero floor and at most two decimals for shares.
+6. The visible book refreshes every 10 seconds while the document is visible, except during review or submission. The UI's age clock updates every second. Review obtains a fresh book; a preview never reserves liquidity.
 
-Default discovery returns up to 40 markets. Public positions expose the first 100 supported rows with `hasMore`; the UI reports truncation. Redeemable positions are directed to venue redemption rather than submitted as open-market sells.
+Public positions expose the first 100 supported rows with `hasMore`; the UI reports truncation. The market endpoint also supports discovery/search, including up to 40 discovery results, but the position-first screen does not automatically select a discovery market on entry.
+
+#### Profile resolution and request identity
+
+For a connected wallet, Gamma must return a valid public profile mapping. The adapter never substitutes the signer EOA when that mapping is absent. For a manually entered raw address, a genuine upstream 404 permits reading that exact address with `resolvedFromProfile=false`; an upstream error or malformed successful response does not. Handles and profile URLs require one exact case-insensitive name match in a complete bounded search result, followed by a matching profile lookup. Conflicting mappings, fuzzy results and incomplete search pages are rejected. A mapping to a different address is also checked against that account's own profile. These are provider consistency checks, not cryptographic ownership proof.
+
+Both public adapters use fixed origins/paths, omitted credentials, rejected redirects and a 12-second timeout per upstream request. `account-profile.ts` enforces a streamed body-size bound. `public-data.ts` checks response text against a size limit before parsing; it is not a streaming body-size limiter. Arbitrary user-supplied URLs are never fetched.
+
+The controller keeps public and execution contexts separate. A book request is bound to mode, condition and outcome token, so connecting a signer does not discard an otherwise-current public read. Manual profile/position requests and position selection are likewise independent of signer changes. A connected-wallet lookup additionally checks that the initiating signer remains current. Request generations invalidate superseded inputs, mode changes and selections. While a position is loading, review and step navigation are blocked. Live review still binds the complete mode, token, signer, account and order-input context.
+
+#### Recent-profile preference
+
+After a successful portfolio load, `closeout-recent-profile-v1` stores only the account address and optional display labels in browser `localStorage`. Resuming it performs a fresh public profile and positions lookup. It does not restore holdings, a session, a selected plan or authority, and the user can forget it. Invalid or unavailable preference storage is ignored; it does not share the fail-closed contract of live order-history storage.
 
 ### Review, authorization and submission
 
@@ -155,7 +174,7 @@ Compaction retains every unresolved record and fills the remaining capacity with
 
 | Boundary | Enforced behavior and practical limit |
 | --- | --- |
-| Public address → authority | Portfolio lookup never authorizes a trade. Owner signer and account relationship are checked separately. |
+| Public profile/address → authority | Imported holdings and saved profile labels never authorize a trade. Owner signer and account relationship are checked separately. |
 | Provider response → financial model | Runtime normalization checks identity, precision and constraints. A recent fetch still cannot prove future liquidity or feed completeness. |
 | Review → order | Reviewed input/context and age are checked, then an explicit signed sell is submitted. The gross floor is not an all-in net-return guarantee. |
 | Browser → venue | Geography is checked from the user’s browser. Blocked or unknown status disables submission; the server does not reroute orders. |
@@ -179,6 +198,6 @@ Useful next extensions are narrowly defined: paginate positions without hiding c
 
 ## Verification and code navigation
 
-The relevant tests are colocated with the financial boundaries: [exit-plan tests](../src/lib/exit-plan.test.ts), [quote tests](../src/lib/quote.test.ts), [provider normalization tests](../src/lib/public-data.test.ts), [trading-service tests](../src/lib/trading-client.test.ts), [reconciliation tests](../src/lib/order-status.test.ts) and [history tests](../src/lib/order-history.test.ts). Service tests mock wallet/SDK interactions; they do not prove a live wallet or trade.
+The relevant tests are colocated with the boundaries: [profile resolution tests](../src/lib/account-profile.test.ts), [exit-plan tests](../src/lib/exit-plan.test.ts), [quote tests](../src/lib/quote.test.ts), [provider normalization tests](../src/lib/public-data.test.ts), [trading-service tests](../src/lib/trading-client.test.ts), [reconciliation tests](../src/lib/order-status.test.ts) and [history tests](../src/lib/order-history.test.ts). Service tests mock wallet/SDK interactions; they do not prove a live wallet or trade.
 
 With a local server already running, [browser-smoke.mjs](../scripts/browser-smoke.mjs) exercises the explicit example, selected failure states and responsive workspace; [privy-smoke.mjs](../scripts/privy-smoke.mjs) checks the real chooser without selecting or authenticating a wallet; [site-smoke.mjs](../scripts/site-smoke.mjs) checks the public journey and example entry. See [verification](verification.md) for dated results and their scope. `npm test`, `npm run typecheck` and `npm run build` are the project checks; current outputs belong in verification evidence rather than permanent architecture claims.

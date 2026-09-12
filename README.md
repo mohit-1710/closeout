@@ -10,7 +10,7 @@
 
 The market price is a single number. Selling your whole position is a different question.
 
-**Closeout helps Polymarket traders see what could sell, what fees take, and what stays unsold.** Read the bids, choose a minimum price per share, and review an exit from the wallet that owns your position.
+**Closeout helps Polymarket traders see what could sell, what fees take, and what stays unsold.** Bring your public portfolio, choose a position, and see an exit plan before authorizing an order.
 
 [Website](https://closeout-ashen.vercel.app) · [Open app](https://closeout-ashen.vercel.app/app) · [Try an example](https://closeout-ashen.vercel.app/app?mode=example) · [How it works](https://closeout-ashen.vercel.app/how-it-works)
 
@@ -22,13 +22,18 @@ A displayed price does not tell you how much of a position can fill at that pric
 
 | Step | What you get |
 | --- | --- |
-| **Find your position** | Search live markets or inspect an account's public holdings. |
-| **Set your floor** | Choose shares to sell and a minimum gross price per share. |
+| **Bring your portfolio** | Connect the wallet you use with Polymarket, or paste a public profile link or account address. |
+| **Choose a position** | Start with the shares actually held. Public lookup needs no signature. |
+| **Set your floor** | Begin at the current best bid. Adjust the share amount or minimum gross price deliberately. |
 | **See the tradeoff** | Estimated proceeds, venue fees, fillable shares and shares left unsold. |
 | **Choose the behavior** | Sell available shares at your floor, or require the entire quantity to fill. |
 | **Review and follow** | Refresh the plan, authorize from the owner wallet, and track the order's outcome. |
 
-The homepage includes a working preview powered by the same decimal quote engine as the app. Change the floor and the eligible depth changes with it.
+The app opens with portfolio lookup, not a prefilled order. Errors stay beside the editable input; a recently viewed public profile can be looked up again on the next visit. A separate sample journey lets anyone try the planner without a wallet.
+
+![Closeout asks for a wallet or public Polymarket profile before loading positions](docs/images/onboarding.png)
+
+The homepage also includes a working preview powered by the same decimal quote engine. Change the floor and the eligible depth changes with it.
 
 <details open>
 <summary><strong>The exit workspace</strong></summary>
@@ -48,7 +53,7 @@ In this **fictional example**, 250 shares at a 0.60 pUSD floor have 140 shares o
 
 ## Architecture
 
-The public website explains the product without initializing a wallet. The trading workspace has its own provider boundary. Three server routes read public market data; signing and order submission happen in the browser.
+The public website explains the product without initializing a wallet. The trading workspace has its own provider boundary. Four server routes read public identity and market data; signing and order submission happen in the browser.
 
 ```mermaid
 flowchart TB
@@ -56,7 +61,7 @@ flowchart TB
   PREVIEW["Interactive example"]
   APP["Exit workspace /app"]
   QUOTE["Decimal quote engine"]
-  API["Public GET routes<br/>Markets · Book · Positions"]
+  API["Public GET routes<br/>Profile · Positions · Markets · Book"]
   DATA["Venue public APIs"]
   WALLET["Existing owner wallet"]
   TRADE["Preflight · Sign · Submit"]
@@ -112,7 +117,7 @@ npm ci
 npm run dev
 ```
 
-Open [localhost:3000](http://localhost:3000) for the website, or [/app?mode=example](http://localhost:3000/app?mode=example) for the fictional workspace. Public browsing and planning need no key or wallet.
+Open [localhost:3000](http://localhost:3000) for the website. In [/app](http://localhost:3000/app), paste a public Polymarket profile to inspect holdings without a wallet, or use [/app?mode=example](http://localhost:3000/app?mode=example), choose the fictional Atlas position, and try a different floor. Public lookup and planning need no key or wallet.
 
 For the Privy chooser, copy `.env.example` to `.env.local`, set `NEXT_PUBLIC_PRIVY_APP_ID`, enable wallet authentication, and allow your exact origin. **No app secret is needed.** Without an App ID, the workspace supports an injected Ethereum wallet. See [wallet setup](docs/privy-setup.md) and [deployment](docs/deployment.md).
 
@@ -130,7 +135,7 @@ npm run test:browser
 npm run test:privy  # requires a configured public Privy App ID
 ```
 
-The September 12 redesign passed **209 unit/service tests**, **25 site checks**, **13 workspace checks**, and **4 actual Privy chooser checks**. The [GitHub workflow](.github/workflows/checks.yml) runs the locked install, unit tests, formatting check and production build. Browser suites run separately and save reports under ignored `.artifacts/qa/`. [Verification scope and reproduction](docs/verification.md).
+The September 12 onboarding release passed **282 unit/service tests**, **26 site checks**, **18 journey checks**, and **4 actual Privy chooser checks**. The journey suite covers editable lookup failures, stale responses, real holding quantities, returning profiles, unavailable books and the full sample path. The [GitHub workflow](.github/workflows/checks.yml) runs the locked install, unit tests, formatting check and production build. Browser suites run separately and save reports under ignored `.artifacts/qa/`. [Verification scope and reproduction](docs/verification.md).
 
 **Execution status:** public reads, planning and fictional fills are exercised. Actual owner authentication, signing, live orders and cancellations have not been validated end to end. Final live `netReceipt` remains unknown until proceeds reconciliation is implemented. Closeout does not deploy accounts, change approvals, or move deposits and withdrawals.
 
@@ -143,8 +148,10 @@ src/
     product/              product explanation
     how-it-works/         workflow and questions
     app/                  trading route and wallet boundary
-    api/                  public market, book and position reads
-  components/             site, preview, workspace and wallet UI
+    api/                  public profile, position, market and book reads
+  components/
+    journey/              onboarding, portfolio, planner, review and activity
+                          site, preview, workspace shell and wallet UI
   hooks/                  account, review and order coordination
   lib/                    decimal math, data adapters and order services
 scripts/                  browser checks and brand-asset generation
@@ -156,6 +163,7 @@ docs/                     architecture, math, integration and operations
 
 | Public endpoint | Purpose |
 | --- | --- |
+| `GET /api/profile?input=...&source=manual` | Resolve an exact public profile or position-account address. Wallet lookup uses `source=wallet`. |
 | `GET /api/markets?q=...` | Discover markets; `conditionId` supports exact lookup. |
 | `GET /api/book?tokenId=...&conditionId=...` | Read an outcome book bound to its market. |
 | `GET /api/positions?account=0x...` | Read public holdings with pagination-limit metadata. |

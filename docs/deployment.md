@@ -4,7 +4,7 @@ The canonical site is [closeout-ashen.vercel.app](https://closeout-ashen.vercel.
 
 ## Hosting and configuration
 
-Closeout is a Next.js application deployed on Vercel. Use Node.js 24 or later, `npm ci` and `npm run build`. The public market, book and position API routes require a server runtime; a static export is insufficient. See [architecture](architecture.md) for route boundaries.
+Closeout is a Next.js application deployed on Vercel. Use Node.js 24 or later, `npm ci` and `npm run build`. The public profile, position, market and book API routes require a server runtime; a static export is insufficient. See [architecture](architecture.md) for route boundaries.
 
 `NEXT_PUBLIC_PRIVY_APP_ID` is the optional public browser identifier shown in [the environment template](../.env.example). With it, the workspace offers the configured Privy external-wallet chooser. Without it, the workspace uses an injected Ethereum provider. This integration needs no Privy app secret, builder secret or server wallet key. Changes to the public identifier require a rebuild.
 

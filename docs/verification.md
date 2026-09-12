@@ -4,13 +4,13 @@ The automated suites verify different boundaries. Passing a fixture or opening a
 
 ## Current coverage
 
-The September 12, 2026 redesign passed the following local checks:
+The position-first onboarding release is checked with the following suites:
 
 | Suite | Result | What it covers |
 | --- | --- | --- |
-| Vitest | 209 tests in 6 files | Decimal quotes, public parsing, preflight, order status, history and trading adapter behavior. Provider and SDK interactions are mocked. |
-| Site smoke | 25 checks | Public routes, navigation, keyboard focus, FAQs, interactive quote preview, intentional example entry, responsive layout and icon/social assets. |
-| Workspace smoke | 13 checks | Controlled live-read failure and retry, example planning, FAK/FOK, review, fictional partial fill, activity export and responsive controls. |
+| Vitest | 282 tests in 7 files | Exact public-profile resolution, decimal quotes, public parsing, preflight, order status, history and trading adapter behavior. Provider and SDK interactions are mocked. |
+| Site smoke | 26 checks | Public routes, navigation, keyboard focus, FAQs, interactive quote preview, intentional example entry, responsive layout and icon/social assets. |
+| Workspace smoke | 18 checks | Fresh entry without arbitrary market data, editable lookup errors, actual position quantities, stale-response rejection, recent public-profile lookup, book recovery, sample planning, FAK/FOK, review, fictional partial fill, activity export and responsive controls. |
 | Privy smoke | 4 checks | Actual public app config, actionable wallet chooser, dismissal/reopening and absence of account or order actions. |
 | Build | Passed | Next.js compilation, generated routes and TypeScript checking. |
 
@@ -49,7 +49,7 @@ BASE_URL=https://closeout-ashen.vercel.app QA_LABEL=production npm run test:site
 BASE_URL=https://closeout-ashen.vercel.app QA_LABEL=production npm run test:privy
 ```
 
-Reports and raw screenshots are written to `.artifacts/qa/`, which is ignored by Git and excluded from deployment. `QA_LABEL` distinguishes site and Privy runs; the workspace suite replaces its latest `browser-smoke.json` and associated captures. Curated README images live in `docs/images/` and show the actual production build using fictional example data.
+Reports and raw screenshots are written to `.artifacts/qa/`, which is ignored by Git and excluded from deployment. `QA_LABEL` distinguishes each suite's runs and associated captures. Preserve failed reports under a different label when rerunning a fix. Curated README images live in `docs/images/` and show the actual production build. Planner screenshots use clearly fictional sample data.
 
 ## What remains unverified
 

@@ -1,6 +1,6 @@
 # Privy setup
 
-Closeout uses Privy to connect an existing external Ethereum wallet in the [/app workspace](https://closeout-ashen.vercel.app/app). The provider is mounted only on that route. Connecting a wallet does not authenticate a Polymarket trading session or prove ownership of an address entered for position lookup.
+Closeout uses Privy to connect an existing external Ethereum wallet in the [/app workspace](https://closeout-ashen.vercel.app/app). The provider is mounted only on that route. Public profile import and exit planning work without a connection. Connecting a wallet does not authenticate a Polymarket trading session or prove ownership of an imported account.
 
 ## Configure an application
 
@@ -15,9 +15,13 @@ Allowed origins include the scheme and exact development port, but no `/app` pat
 
 ## Application behavior
 
-The [wallet provider](../src/components/wallet-provider.tsx) configures wallet-only login, Ethereum external wallets, Polygon as the trading chain and no automatic embedded-wallet creation. It exposes an EIP-1193 provider to the workspace. Account or chain changes invalidate the active execution context.
+The [wallet provider](../src/components/wallet-provider.tsx) configures wallet-only login, Ethereum external wallets, Polygon as the trading chain and no automatic embedded-wallet creation. It exposes an EIP-1193 provider to the workspace. The current connection flow selects Polygon and can request a network switch. Account or chain changes invalidate the active execution context.
 
-Closeout closes its native wallet dialog before opening Privy's separate chooser so the modal layers do not overlap. The chooser establishes connection only. The user separately reviews and authorizes the venue session, and the [trading adapter](../src/lib/trading-client.ts) checks the signer/account relationship before execution.
+The entry action opens Privy's chooser directly. Closeout does not put a separate native wallet dialog in front of it. After a deliberate entry connection, the workspace asks `/api/profile` to resolve that wallet's public position account, then loads `/api/positions`. No profile mapping means an error with the manual import path available; Closeout never silently treats the connected EOA as its Polymarket account.
+
+The alternative entry accepts a public profile URL, handle or account address. It needs no Privy session, and it is appropriate for inspecting a profile originally created through another login method. It does not import an email account, request login details or recover access to a wallet. Connecting later from the planner preserves that imported account. The user separately reviews and authorizes the venue session, and the [trading adapter](../src/lib/trading-client.ts) checks the exact signer/account relationship before execution.
+
+The optional recent-profile preference is a browser-local public-account bookmark. Resuming it starts a fresh public lookup; it does not reconnect the wallet or restore authentication. See [architecture](architecture.md) for request identity, storage and authority boundaries.
 
 ## Verification
 
