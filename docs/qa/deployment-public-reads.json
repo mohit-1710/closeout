@@ -1,0 +1,24 @@
+{
+  "checkedAt": "2026-09-12T15:55:50.347Z",
+  "base": "https://closeout-ashen.vercel.app",
+  "commit": "b65de78d81c59c083e9ecbd3113478b5ae8426e5",
+  "scope": "Unauthenticated public GET reads only; no wallet or order.",
+  "page": {
+    "status": 200,
+    "url": "https://closeout-ashen.vercel.app/",
+    "title": "Closeout — Know your exit",
+    "bytes": 41251
+  },
+  "markets": {
+    "status": 200,
+    "count": 40,
+    "error": null
+  },
+  "book": {
+    "status": 200,
+    "bids": 20,
+    "asks": 67,
+    "feeKnown": true,
+    "error": null
+  }
+}

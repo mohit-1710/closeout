@@ -12,4 +12,10 @@ September 12, 2026 IST. Executed locally on Node 26.7.0 / npm 11.19.0.
   - 16 trading-service tests use mocked SDK/provider calls. Real wallet auth, signatures, approvals and live sells remain untested.
 - Dependency audit: 0 high/critical; 23 moderate transitive wallet-stack advisories remain. See `dependency-audit.json`.
 
-No production deployment or event submission was performed. Browser simulations contain no transaction hashes and are labeled as fictional.
+## Published checks and deployment
+
+The public repository is [mohit-1710/closeout](https://github.com/mohit-1710/closeout). [GitHub Checks run 34703514251](https://github.com/mohit-1710/closeout/actions/runs/34703514251) passed locked dependency installation, tests and the production build on Node 24 for commit `b65de78d81c59c083e9ecbd3113478b5ae8426e5`. Browser/Privy checks are not part of that workflow.
+
+Vercel's production deployment for that commit reached READY at [closeout-ashen.vercel.app](https://closeout-ashen.vercel.app). Public GET smoke checks at September 12, 15:55:50 UTC passed: page HTTP 200 with the Closeout title; 40 markets; an inspected book with 20 bids, 67 asks and known fee metadata. These observations are a snapshot, not fixed market quantities. See [deployment-public-reads.json](deployment-public-reads.json) and [deployment setup](../deployment.md).
+
+The deployed Privy origin is pending owner configuration and a chooser check. No event submission is verified. Browser simulations contain no transaction hashes and are labeled as fictional; no real order was sent.

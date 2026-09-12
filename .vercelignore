@@ -1,10 +1,10 @@
-node_modules/
+.git/
 .next/
+.vercel/
+node_modules/
 .env*
 !.env.example
-*.tsbuildinfo
+docs/
 playwright-report/
 test-results/
-.DS_Store
-docs/vendor/
-.vercel/
+*.tsbuildinfo
