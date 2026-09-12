@@ -1,22 +1,31 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="320" viewBox="0 0 1280 320" fill="none" role="img" aria-labelledby="title description">
-  <title id="title">Closeout</title>
-  <desc id="description">Prediction market exits. Read the bids. Set a floor. Track the outcome. Flat dark green and lime banner with an exit arrow and three bid levels.</desc>
-  <rect x="1" y="1" width="1278" height="318" rx="22" fill="#101512" stroke="#334037" stroke-width="2"/>
-  <text x="56" y="57" fill="#c8ee8d" font-family="Arial, Helvetica, sans-serif" font-size="13" letter-spacing="2.7">PREDICTION MARKET EXITS</text>
-  <g transform="translate(54 91) scale(2.65)" fill="#c8ee8d">
-    <path d="M5 7h10v6H9v12H5V7Z"/>
-    <path d="M15 19h8l-4-4 3-3 9 9-9 9-3-3 4-4h-8v-4Z"/>
-    <path d="M19 3h8v8h-4V7h-4V3Z" opacity=".45"/>
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="340" viewBox="0 0 1280 340" fill="none" role="img" aria-labelledby="title description">
+  <title id="title">Closeout — Know your exit. Before you sign.</title>
+  <desc id="description">A warm-white and violet Closeout banner with the exit-arrow mark and an illustrative order book.</desc>
+  <rect x="1" y="1" width="1278" height="338" rx="20" fill="#fbfaf9" stroke="#dfdce4" stroke-width="2"/>
+  <g transform="translate(52 40) scale(.64)" stroke="#6f4cff" stroke-width="5" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M36 14H23a9 9 0 0 0-9 9v18a9 9 0 0 0 9 9h13"/>
+    <path d="M31 32h21m-9-9 9 9-9 9"/>
   </g>
-  <text x="158" y="162" fill="#f0f4ef" font-family="Arial, Helvetica, sans-serif" font-size="75" font-weight="700" letter-spacing="-3">closeout</text>
-  <text x="56" y="226" fill="#f0f4ef" font-family="Arial, Helvetica, sans-serif" font-size="26">Read the bids. Set a floor. Track the outcome.</text>
-  <path d="M56 255H816" stroke="#334037"/>
-  <text x="56" y="284" fill="#c8ee8d" font-family="Arial, Helvetica, sans-serif" font-size="12" letter-spacing="2">POLYGON  /  BROWSER SIGNING  /  ETHONLINE 2026</text>
-  <rect x="898" y="44" width="326" height="232" rx="12" fill="#171d19" stroke="#334037"/>
-  <text x="922" y="78" fill="#f0f4ef" font-family="Arial, Helvetica, sans-serif" font-size="12" letter-spacing="2">AT YOUR PRICE FLOOR</text>
-  <rect x="922" y="103" width="238" height="18" rx="3" fill="#c8ee8d"/>
-  <rect x="922" y="135" width="176" height="18" rx="3" fill="#c8ee8d"/>
-  <path d="M918 170H1202" stroke="#c8ee8d" stroke-width="2" stroke-dasharray="5 5"/>
-  <rect x="922" y="187" width="98" height="18" rx="3" fill="#334037"/>
-  <text x="922" y="246" fill="#f0f4ef" font-family="Arial, Helvetica, sans-serif" font-size="12">LIVE DEPTH. INDICATIVE ESTIMATES.</text>
+  <text x="104" y="72" fill="#0a0a0a" font-family="Arial, Helvetica, sans-serif" font-size="35" font-weight="700" letter-spacing="-2">closeout<tspan fill="#6f4cff">.</tspan></text>
+  <text x="56" y="158" fill="#0a0a0a" font-family="Georgia, Times New Roman, serif" font-size="57" letter-spacing="-2">Know your exit.</text>
+  <text x="56" y="222" fill="#6f4cff" font-family="Georgia, Times New Roman, serif" font-size="57" font-style="italic" letter-spacing="-2">Before you sign.</text>
+  <text x="58" y="284" fill="#68646f" font-family="Arial, Helvetica, sans-serif" font-size="17">See what could sell, what fees take, and what stays yours.</text>
+  <rect x="831" y="42" width="392" height="256" rx="15" fill="#fff" stroke="#dfdce4"/>
+  <text x="855" y="79" fill="#68646f" font-family="Arial, Helvetica, sans-serif" font-size="12" letter-spacing="1.5">THE EXIT, IN FOCUS</text>
+  <circle cx="1192" cy="74" r="4" fill="#6f4cff"/>
+  <path d="M831 97H1223" stroke="#dfdce4"/>
+  <g fill="#6f4cff">
+    <rect x="904" y="119" width="86" height="12" rx="2"/>
+    <rect x="904" y="146" width="129" height="12" rx="2"/>
+    <rect x="904" y="173" width="186" height="12" rx="2"/>
+  </g>
+  <rect x="904" y="200" width="258" height="12" rx="2" fill="#dfdce4"/>
+  <g fill="#6f4cff" font-family="monospace" font-size="12">
+    <text x="854" y="129">0.62</text>
+    <text x="854" y="156">0.61</text>
+    <text x="854" y="183">0.60</text>
+  </g>
+  <text x="854" y="210" fill="#68646f" font-family="monospace" font-size="12">0.58</text>
+  <path d="M831 235H1223" stroke="#dfdce4"/>
+  <text x="855" y="274" fill="#0a0a0a" font-family="Arial, Helvetica, sans-serif" font-size="14">Your position. Your floor. A clearer plan.</text>
 </svg>

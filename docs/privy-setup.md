@@ -1,22 +1,38 @@
-# Privy integration checkpoint
+# Privy setup
 
-Updated September 12, 2026 IST. The current Privy app is **Closeout**, with public App ID `cmtxg359900sd0cjp3cacl9m6`.
+Closeout uses Privy to connect an existing external Ethereum wallet in the [/app workspace](https://closeout-ashen.vercel.app/app). The provider is mounted only on that route. Connecting a wallet does not authenticate a Polymarket trading session or prove ownership of an address entered for position lookup.
 
-It is configured as `NEXT_PUBLIC_PRIVY_APP_ID` in the Git-ignored `.env.local`, and the development server was restarted. The integration requires no app secret or custom client ID. An app secret was exposed in the conversation; revoke that exposed secret in Privy. Closeout does not use it, and no replacement secret is needed for this browser integration.
+## Configure an application
 
-The new app's initial local SDK configuration was verified with HTTP 200, name `Closeout`, `wallet_auth: true`, and these allowed origins:
+1. Enable wallet authentication in the Privy dashboard.
+2. Copy [`.env.example`](../.env.example) to an ignored local environment file and set `NEXT_PUBLIC_PRIVY_APP_ID` to the public App ID. Set the same variable in the intended deployment environment.
+3. Allow the exact origins that should offer wallet login: production uses `https://closeout-ashen.vercel.app`; local development commonly uses `http://localhost:3000` or `http://127.0.0.1:3000`.
+4. Restart local development or rebuild the deployment after changing the public identifier.
 
-- `http://localhost:3000`
-- `http://127.0.0.1:3000`
+No app secret or custom client ID is needed for this browser integration. Without a public App ID, Closeout uses its injected-wallet connection path. See the [official React setup](https://docs.privy.io/basics/react/setup).
 
-Local name and origin setup is complete. The public configuration endpoint is `https://auth.privy.io/api/v1/apps/cmtxg359900sd0cjp3cacl9m6`, using the public `privy-app-id` header and an `Origin`; no authenticated dashboard API is needed to check these values.
+Allowed origins include the scheme and exact development port, but no `/app` path. Approve preview origins deliberately; a wildcard covering unrelated `vercel.app` applications is inappropriate. Privy's [allowed-domain documentation](https://docs.privy.io/recipes/dashboard/allowed-domains) describes the dashboard controls.
 
-The app is now deployed at **https://closeout-ashen.vercel.app**. Vercel production, preview and development environments have the public App ID configured. Mohit added the production origin, and public configuration at September 12, 16:00 UTC verified all three origins. The [deployed chooser check](qa/privy-integration-production.json) passed all four checks: public config, actionable chooser, dismissal/reopening, and no account/signature/order action. No wallet was selected or authenticated. Preview URLs also require their own approved origins if they are to support login. See [deployment setup](deployment.md).
+## Application behavior
 
-`npm run test:privy` uses a fresh isolated Chromium context and actual public Privy configuration. It opens Closeout’s wallet dialog, invokes its inner Connect button, verifies the Privy chooser is actionable, dismisses it and repeats. It selects no wallet and creates no authentication, linked account, signature or order. Only the exact anonymous Privy analytics endpoint is allowed to POST; other writes are blocked. All four smoke checks passed for the new Closeout app, and the production build also passed with its public ID configured. The [current smoke report](qa/privy-integration-current.json) and [public configuration check](qa/privy-dashboard-config.json) record the new App ID, name and origins.
+The [wallet provider](../src/components/wallet-provider.tsx) configures wallet-only login, Ethereum external wallets, Polygon as the trading chain and no automatic embedded-wallet creation. It exposes an EIP-1193 provider to the workspace. Account or chain changes invalidate the active execution context.
 
-The earlier setup used development app `cmtxfl71h00hj0cl5lvwb4kp8`, then named `app` with no allowed-domain entries. Brave input failures left its branding/origins unfinished. That earlier app produced the before-fix failure report and the first passing chooser test. The native-dialog overlap was fixed during that test. Its configuration and passing chooser artifacts were archived with `previous-app` names; the original before-fix report remains historical evidence, not a check of the replacement app.
+Closeout closes its native wallet dialog before opening Privy's separate chooser so the modal layers do not overlap. The chooser establishes connection only. The user separately reviews and authorizes the venue session, and the [trading adapter](../src/lib/trading-client.ts) checks the signer/account relationship before execution.
 
-The current app uses external Ethereum wallets only, Polygon as its chain, and no automatic embedded-wallet creation. Real wallet authentication and the financial flow remain separate user-authorized checks.
+## Verification
 
-Primary references: [Privy React setup](https://docs.privy.io/basics/react/setup), [app credentials](https://docs.privy.io/basics/get-started/dashboard/create-new-app), [branding](https://docs.privy.io/basics/get-started/dashboard/configuring-appearance), [allowed origins](https://docs.privy.io/recipes/dashboard/allowed-domains).
+With the app running on an allowed origin, run:
+
+```sh
+npm run test:privy
+```
+
+For production:
+
+```sh
+BASE_URL=https://closeout-ashen.vercel.app QA_LABEL=production npm run test:privy
+```
+
+The isolated browser check reads actual public configuration and opens, dismisses and reopens the real chooser. It selects no wallet and blocks authentication, linking, signing and order actions. Known anonymous initialization requests are identified separately from financial writes. Reports are generated under ignored `.artifacts/qa/`.
+
+Passing this check does not establish actual wallet authentication, signing, live order submission, cancellation or funded execution. Those remain unvalidated, and final live net proceeds remain unreconciled. See [verification](verification.md) and [execution integration](execution-integration.md).

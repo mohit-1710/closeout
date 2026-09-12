@@ -1,23 +1,27 @@
 # Integration feedback
 
-Observations made while building, not submitted.
+These observations describe the installed integrations and useful documentation improvements. Dependency versions are pinned in [package.json](package.json). This file does not imply that feedback has been submitted to a provider.
 
-- September12 IST: older Polymarket CLOB documentation URLs redirect to unified SDK pages. The similarly named @polymarket/sdk package is not the official current @polymarket/client0.10.0. Using primary docs and inspecting installed declarations avoids incompatible authentication/order methods.
+## Polymarket TypeScript SDK
 
-## Privy
+### Keep runtime exports aligned with declarations
 
-Current public App ID: `cmtxg359900sd0cjp3cacl9m6`. The new app's public configuration verifies name **Closeout**, wallet authentication enabled, and exactly `http://localhost:3000` and `http://127.0.0.1:3000` as allowed origins. Name and local origin setup are complete. All four actual chooser smoke checks and the production build passed with this app; a connected-wallet financial flow and sponsor eligibility are not claimed.
+During integration with `@polymarket/client` 0.10.0, importing `AssetType` from the client package passed type checking but failed against the published runtime exports. Closeout imports that runtime value from the matching `@polymarket/bindings` package instead. A smoke check against the published ESM package, alongside declaration checks, would catch this class of mismatch. The workaround is contained in the [trading adapter](src/lib/trading-client.ts).
 
-## Integrated build review — September 12 IST
+### Show an existing-account execution path
 
-Browser QA found the SDK declaration/runtime export mismatch for AssetType; importing from the pinned bindings package fixed actual bundling. Same-query market retries now use a request revision, and discovery no longer clears an unchanged selected book.
+An example covering an existing owner-controlled trading account without deploying an account or granting new approvals would help applications keep read, authentication and transaction boundaries explicit. Closeout validates the account's owner relationship and rejects missing deployment or approval prerequisites; its signer adapter does not authorize setup transactions. Other supported SDK wallet types are outside this implementation. See [wallet and authentication documentation](https://docs.polymarket.com/trading/wallets-auth).
 
-Independent review found and fixed account lookup races, session binding across provider awaits, overlapping cancellation, corruption of saved history, missing trade references incorrectly becoming terminal, and a live partial remainder no longer being polled. Cross-tab account locks now cover the final history check through persisted order response; history writes are serialized separately. Pending records survive terminal-history pruning; capacity exhaustion fails closed.
+### Separate order acceptance from confirmed settlement
 
-Tests cover decimal estimation, public-response identity and precision, order/fill reconciliation, stored-history integrity and retention, and mocked wallet/trading-service safeguards. Browser tests use explicit fictional fills and GET fixtures. Actual public reads were also tested separately. No live wallet execution is claimed.
+A worked lifecycle example with partial quantities, trade references and cancellation of an unfilled remainder would help prevent applications from treating an accepted order as received proceeds. Closeout's [reconciler](src/lib/order-status.ts) checks confirmed trade evidence; final live net proceeds remain unreconciled. The [official lifecycle reference](https://docs.polymarket.com/concepts/order-lifecycle) provides the underlying states.
 
-## Privy activation — September 12 IST
+## Privy React SDK
 
-The initial activation used development app `cmtxfl71h00hj0cl5lvwb4kp8`, named `app`. Actual SDK initialization exposed a modal-layer bug: Closeout’s native wallet dialog made Privy’s separate chooser inaccessible. The Connect action now closes the native dialog synchronously before opening Privy. An isolated browser test verified that app's chooser opens, dismisses and reopens; no wallet was selected and all auth/link/order writes were blocked. Native Brave input/window failures initially left its dashboard name and allowed origins pending.
+Closeout initially opened Privy's chooser while its own native HTML dialog remained modal, making the separate chooser inaccessible. Closing the native dialog before invoking Privy resolved the application-level integration problem. A note about native dialogs and portaled wallet choosers would be useful in integration guidance; this finding does not establish a Privy SDK defect.
 
-Mohit subsequently supplied the new public Closeout App ID above. Its public configuration confirms the completed name and origin setup, replacing that earlier pending action. The development server was restarted with the new public ID; all four actual chooser smoke checks and the production build passed. No wallet was selected, authenticated, linked or used to sign or trade. Earlier passing artifacts were retained under `previous-app` names. A secret exposed in conversation is not used by the integration; revoke it in Privy. No replacement secret is needed, and no secret value is recorded here.
+The actual chooser has been checked for opening, dismissal and reopening in isolated browser contexts. No wallet was selected, authenticated, linked or used to sign or trade during those checks. The current [wallet provider](src/components/wallet-provider.tsx) uses external wallets without automatically creating embedded wallets.
+
+## Scope of these observations
+
+Unit and service checks use controlled fixtures. Public reads, fictional example flows and the real wallet chooser have separate browser coverage. Actual wallet authentication, signatures, live orders, cancellation, approvals and funded execution remain unvalidated. See [verification](docs/verification.md) and [execution integration](docs/execution-integration.md) for the current boundaries.

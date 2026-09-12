@@ -1,24 +1,29 @@
-# Closeout deployment
+# Deployment
 
-- App: **https://closeout-ashen.vercel.app**
-- Repository: **https://github.com/mohit-1710/closeout**
-- Hosting: Vercel project `closeout`, connected to the repository's `main` branch.
-- Runtime: Node 24; `npm ci` and the Next.js production build.
+The canonical site is [closeout-ashen.vercel.app](https://closeout-ashen.vercel.app). The trading workspace lives at [/app](https://closeout-ashen.vercel.app/app); [/app?mode=example](https://closeout-ashen.vercel.app/app?mode=example) opens explicitly fictional data.
 
-The first published production deployment, `dpl_8CHHimJsxTDHGbHBpZsDjvo4zT4D`, reached READY for commit `b65de78d81c59c083e9ecbd3113478b5ae8426e5` on September 12, 2026. [Public smoke evidence](qa/deployment-public-reads.json) records successful page, market and order-book reads at 15:55 UTC. Main-branch pushes trigger new deployments; the stable app URL points to the latest production deployment.
+## Hosting and configuration
 
-## Configuration
+Closeout is a Next.js application deployed on Vercel. Use Node.js 24 or later, `npm ci` and `npm run build`. The public market, book and position API routes require a server runtime; a static export is insufficient. See [architecture](architecture.md) for route boundaries.
 
-`NEXT_PUBLIC_PRIVY_APP_ID` is the only configured application environment variable. It is a public browser identifier, set for production, preview and development. The app does not require a Privy secret. Environment changes affecting this public variable require a new build.
+`NEXT_PUBLIC_PRIVY_APP_ID` is the optional public browser identifier shown in [the environment template](../.env.example). With it, the workspace offers the configured Privy external-wallet chooser. Without it, the workspace uses an injected Ethereum provider. This integration needs no Privy app secret, builder secret or server wallet key. Changes to the public identifier require a rebuild.
 
-**https://closeout-ashen.vercel.app** is allowed in Privy's Closeout app alongside both localhost origins. Mohit added it after deployment. At September 12, 16:00 UTC, public configuration and all four isolated deployed chooser checks passed. The [report](qa/privy-integration-production.json) covers public config and opening, dismissing and reopening the chooser; it does not establish authenticated wallet execution. See [Privy setup](privy-setup.md).
+Allow the exact production origin in Privy:
 
-The venue's public APIs must be reachable from the server. Wallet authentication, geography checks, signing and orders run in the user's browser. Server location does not establish a user's geographic eligibility.
+```text
+https://closeout-ashen.vercel.app
+```
 
-## Release checks
+Preview deployments need their own approved origins to support wallet login. Do not allow every Vercel tenant with a broad wildcard. See [Privy setup](privy-setup.md).
 
-The [Checks workflow](../.github/workflows/checks.yml) installs the lockfile, runs tests and builds on every main-branch push and pull request. GitHub CI and Vercel builds run separately; this setup does not make Vercel deployment wait for CI. Inspect both results before sharing a changed release.
+## Build and release
 
-Local environment files, Vercel link state and build outputs are Git-ignored. `.vercelignore` also excludes environment files, Git data, generated reports and documentation from CLI uploads; `.env.example` is the empty setup template. A CLI upload dry run confirmed those exclusions before publication.
+The [GitHub workflow](../.github/workflows/checks.yml) runs locked installation, unit tests, formatting and a production build on main-branch pushes and pull requests. Vercel deployment and GitHub checks are separate systems; a successful deployment alone does not establish that every check passed.
 
-Public reads do not establish wallet login, authenticated execution or settled proceeds. No wallet, order, cancellation, approval, deposit or withdrawal was exercised by the deployment check.
+[Deployment exclusions](../.vercelignore) omit environment files, local dependencies, docs and generated artifacts. The empty environment template is retained. Application assets belong in `public/` or an application asset route, rather than in the excluded documentation directory.
+
+After release, check the public pages and `/app`, public API error states, explicit example entry, and the configured wallet chooser. Browser scripts accept a `BASE_URL` origin and append the workspace path themselves. Their reports go to ignored `.artifacts/qa/`; reproduction commands and current results are in [verification](verification.md).
+
+## Validation boundary
+
+Public reads and opening, dismissing and reopening the Privy chooser have been checked. Actual wallet authentication, signing, live order submission, cancellation, approvals and funded execution remain unvalidated. Live final net proceeds are not reconciled. Preserve these limits when describing a deployment as working; see [execution integration](execution-integration.md).
