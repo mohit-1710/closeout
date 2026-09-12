@@ -35,13 +35,15 @@ export default function ProductPage() {
             </p>
             <div className="info-actions">
               <Link href="/app" prefetch={false} className="site-button site-button-primary">
-                Open the exit planner <ArrowRight size={17} aria-hidden="true" />
+                Find my positions <ArrowRight size={17} aria-hidden="true" />
               </Link>
               <Link href="/app?mode=example" prefetch={false} className="site-text-link">
                 Try an example <ArrowRight size={16} aria-hidden="true" />
               </Link>
             </div>
-            <p className="info-small site-muted">Browse and plan without connecting a wallet.</p>
+            <p className="info-small site-muted">
+              Import a public profile and plan without connecting a wallet.
+            </p>
           </div>
           <div className="info-position-illustration">
             <div className="info-illustration-label">
@@ -322,7 +324,7 @@ export default function ProductPage() {
             <h2 id="try-heading" className="info-section-heading">
               Start with an example.
             </h2>
-            <p>Change the floor. Compare the fill choices. See what remains.</p>
+            <p>Choose the sample position, adjust its floor and see what would remain.</p>
           </div>
           <Link
             href="/app?mode=example"

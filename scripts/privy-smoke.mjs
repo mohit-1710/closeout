@@ -10,7 +10,7 @@ import { chromium, expect } from "@playwright/test";
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const output = path.join(root, ".artifacts/qa");
 const baseURL = new URL("/app", process.env.BASE_URL || "http://127.0.0.1:3000").href;
-const label = process.env.QA_LABEL || "current";
+const label = process.env.QA_LABEL || "onboarding";
 assert.match(label, /^[a-z0-9-]+$/);
 const stem = `privy-integration-${label}`;
 const report = {
@@ -23,6 +23,8 @@ const report = {
   publicAppConfigs: [],
   allowedAnalytics: [],
   blockedWrites: [],
+  blockedWebSockets: [],
+  accountLookups: [],
   pageErrors: [],
   consoleErrors: [],
   screenshots: [],
@@ -32,6 +34,7 @@ await mkdir(output, { recursive: true });
 for (const file of [
   "src/components/wallet-provider.tsx",
   "src/components/exit-workspace.tsx",
+  "src/components/journey/onboarding.tsx",
   "scripts/privy-smoke.mjs",
 ]) {
   report.sourceHashes[file] = createHash("sha256")
@@ -42,19 +45,59 @@ const browser = await chromium.launch({ headless: true });
 const context = await browser.newContext({
   viewport: { width: 1280, height: 900 },
   reducedMotion: "reduce",
+  serviceWorkers: "block",
+});
+await context.routeWebSocket("**/*", async (socket) => {
+  const url = new URL(socket.url());
+  const httpOrigin = `${url.protocol === "wss:" ? "https:" : "http:"}//${url.host}`;
+  if (
+    httpOrigin === new URL(baseURL).origin &&
+    ["/_next/hmr", "/_next/webpack-hmr"].includes(url.pathname)
+  ) {
+    return socket.connectToServer();
+  }
+  report.blockedWebSockets.push({ host: url.hostname, path: url.pathname });
+  return socket.close();
 });
 await context.route("**/*", async (route) => {
   const request = route.request(),
     url = new URL(request.url());
   if (!["GET", "HEAD", "OPTIONS"].includes(request.method())) {
-    const metadata = { method: request.method(), host: url.hostname, path: url.pathname };
-    if (url.hostname === "auth.privy.io" && url.pathname === "/api/v1/analytics_events") {
+    const cdnBackground =
+      url.origin === "https://auth.privy.io" &&
+      url.pathname.startsWith("/cdn-cgi/challenge-platform/");
+    const metadata = {
+      method: request.method(),
+      host: url.hostname,
+      path: cdnBackground ? "/cdn-cgi/challenge-platform/[redacted]" : url.pathname,
+    };
+    const credential = [
+      "authorization",
+      "privy-authorization",
+      "x-api-key",
+      "poly-api-key",
+      "poly-signature",
+    ].some((key) => Boolean(request.headers()[key]));
+    if (
+      request.method() === "POST" &&
+      url.origin === "https://auth.privy.io" &&
+      url.pathname === "/api/v1/analytics_events" &&
+      !url.search &&
+      !credential
+    ) {
       report.allowedAnalytics.push(metadata);
     } else {
       // Includes auth/session/link/order calls. No request body or credential is logged.
       report.blockedWrites.push(metadata);
       return route.abort("blockedbyclient");
     }
+  }
+  if (
+    url.origin === new URL(baseURL).origin &&
+    /^\/api\/(profile|positions|markets|book)$/.test(url.pathname)
+  ) {
+    report.accountLookups.push({ path: url.pathname, method: request.method() });
+    return route.abort("blockedbyclient");
   }
   return route.continue();
 });
@@ -107,15 +150,13 @@ async function screenshot(suffix) {
   await page.screenshot({ path: path.join(output, file), animations: "disabled" });
   report.screenshots.push(`.artifacts/qa/${file}`);
 }
-const nativeWallet = page
-  .locator("dialog")
-  .filter({ has: page.getByText("Your wallet & positions", { exact: true }) });
 const privy = page.locator("#privy-dialog");
 const closePrivy = privy.locator('button[aria-label="close modal"]');
+const connect = page
+  .locator(".j-entry")
+  .getByRole("button", { name: "Connect wallet", exact: true });
 async function openChooser() {
-  await page.locator(".co-wallet-button").click();
-  await expect(nativeWallet).toBeVisible();
-  await nativeWallet.locator(".co-wallet-connect-button").click();
+  await connect.click();
   await expect(privy.getByText("Select your wallet", { exact: true })).toBeVisible();
 }
 try {
@@ -135,7 +176,7 @@ try {
     await page.waitForTimeout(1500);
   });
   await check(
-    "Inner Connect opens an actionable Privy chooser outside the native modal",
+    "Direct entry Connect opens an actionable Privy chooser without a native dialog",
     async () => {
       await openChooser();
       report.nativeDialogsAtChooser = await page.locator("dialog:modal").count();
@@ -143,7 +184,7 @@ try {
       assert.equal(
         report.nativeDialogsAtChooser,
         0,
-        "Closeout native modal still owns the top layer and blocks Privy.",
+        "A Closeout native modal owns the top layer and blocks Privy.",
       );
       await closePrivy.click({ trial: true });
       await expect(privy.getByText("MetaMask", { exact: true }).first()).toBeVisible();
@@ -153,14 +194,14 @@ try {
   await check("Dismiss clears connecting and permits opening the chooser again", async () => {
     await closePrivy.click();
     await expect(privy).toHaveCount(0);
-    await expect(page.locator(".co-wallet-button")).not.toContainText("Connecting");
+    await expect(connect).toBeEnabled();
     await openChooser();
     await expect(page.locator("dialog:modal")).toHaveCount(0);
     await closePrivy.click({ trial: true });
     await screenshot("chooser-reopened");
     await closePrivy.click();
     await expect(privy).toHaveCount(0);
-    await expect(page.locator(".co-wallet-button")).not.toContainText("Connecting");
+    await expect(connect).toBeEnabled();
   });
   await check("No real wallet, account history, auth action, or order was created", async () => {
     const history = await page.evaluate(() => localStorage.getItem("closeout-orders-v1"));
@@ -171,6 +212,20 @@ try {
     assert.deepEqual(actions, [], "Unexpected action request was attempted and blocked.");
     assert.equal(await page.getByText("Wallet connected", { exact: true }).count(), 0);
     assert.deepEqual(report.pageErrors, []);
+    assert.deepEqual(
+      report.accountLookups,
+      [],
+      "Opening a chooser must not invent an account or load holdings.",
+    );
+    assert.deepEqual(report.blockedWebSockets, []);
+    report.sourceHashesAfter = {};
+    for (const [file, expected] of Object.entries(report.sourceHashes)) {
+      const actual = createHash("sha256")
+        .update(await readFile(path.join(root, file)))
+        .digest("hex");
+      report.sourceHashesAfter[file] = actual;
+      assert.equal(actual, expected, `${file} changed during the chooser check.`);
+    }
   });
   report.passed = true;
 } catch (error) {

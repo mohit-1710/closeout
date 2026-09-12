@@ -21,13 +21,13 @@ assert.ok(
 );
 assert.equal(configuredURL.pathname, "/", "BASE_URL must be an origin.");
 const baseURL = configuredURL.origin;
-const label = process.env.QA_LABEL || "redesign";
+const label = process.env.QA_LABEL || "onboarding";
 assert.match(label, /^[a-z0-9][a-z0-9-]{0,70}$/);
 const stem = `site-${label}`;
 const publicPaths = ["/", "/product", "/how-it-works"];
 const sizes = [
   { width: 1440, height: 1000 },
-  { width: 768, height: 1024 },
+  { width: 760, height: 1024 },
   { width: 375, height: 812 },
 ];
 const report = {
@@ -49,6 +49,7 @@ const report = {
   blockedCdnBackground: [],
   blockedWebSockets: [],
   requestCounts: {},
+  workspaceDataRequests: [],
 };
 
 const isRead = (method) => ["GET", "HEAD", "OPTIONS"].includes(method);
@@ -88,7 +89,7 @@ function isWalletOrTrading(target) {
   if (hostname === "polymarket.com" && url.pathname.startsWith("/api/")) return true;
   return (
     url.origin === baseURL &&
-    /^\/api\/(?:markets|book|positions|auth|session|orders?|trades?|wallet)(?:\/|$)/.test(
+    /^\/api\/(?:profile|markets|book|positions|auth|session|orders?|trades?|wallet)(?:\/|$)/.test(
       url.pathname,
     )
   );
@@ -176,6 +177,13 @@ async function newPage(name) {
     };
     const key = `${state.phase}:${url.hostname}`;
     report.requestCounts[key] = (report.requestCounts[key] || 0) + 1;
+    if (
+      state.phase === "workspace" &&
+      url.origin === baseURL &&
+      /^\/api\/(profile|positions|markets|book)$/.test(url.pathname)
+    ) {
+      report.workspaceDataRequests.push(metadata);
+    }
     if (state.phase === "marketing" && isWalletOrTrading(request.url())) {
       report.marketingServiceRequests.push(metadata);
       return route.abort("blockedbyclient");
@@ -327,7 +335,7 @@ try {
           await settle(page);
           await noOverflow(page);
           await expect(page.locator("h1")).toBeVisible();
-          if (size.width !== 768)
+          if (size.width !== 760)
             await screenshot(
               page,
               `${pathname === "/" ? "home" : pathname.slice(1)}-${size.width}`,
@@ -504,55 +512,108 @@ try {
   });
   await navigation.context.close();
 
+  const entry = await newPage("real-position-entry");
+  await loadPublic(entry.page, "/");
+  await check(
+    "The primary CTA opens position intake without inventing a market, balance or quote",
+    async () => {
+      const cta = entry.page.locator('main a[href="/app"]').first();
+      await expect(cta).toBeVisible();
+      entry.state.phase = "workspace";
+      await cta.click();
+      await expect(entry.page).toHaveURL(`${baseURL}/app`);
+      await expect(
+        entry.page.getByRole("textbox", { name: "Public profile or account address", exact: true }),
+      ).toBeVisible();
+      await expect(
+        entry.page.getByRole("heading", { name: /Bring your.*Polymarket positions/ }),
+      ).toBeVisible();
+      await expect(
+        entry.page.getByRole("textbox", { name: "Shares to sell", exact: true }),
+      ).toHaveCount(0);
+      await expect(
+        entry.page.getByRole("complementary", { name: "Exit estimate", exact: true }),
+      ).toHaveCount(0);
+      await expect(entry.page.locator("#privy-dialog")).toHaveCount(0);
+      for (const size of sizes) {
+        await entry.page.setViewportSize(size);
+        await settle(entry.page);
+        await noOverflow(entry.page);
+        await expect(
+          entry.page.getByRole("textbox", {
+            name: "Public profile or account address",
+            exact: true,
+          }),
+        ).toBeVisible();
+        if (size.width !== 760) await screenshot(entry.page, `entry-${size.width}`);
+      }
+      assert.equal(
+        report.workspaceDataRequests.filter((r) => r.context === "real-position-entry").length,
+        0,
+      );
+    },
+  );
+  await entry.context.close();
+
   const workspace = await newPage("explicit-example-entry");
   const app = workspace.page;
   await loadPublic(app, "/");
   await check(
-    "The example CTA routes to an explicitly synthetic workspace without connecting a wallet",
+    "The example CTA starts a fictional portfolio; choosing Atlas opens its holdings-based plan",
     async () => {
-      const cta = app
-        .locator("main")
-        .getByRole("link")
-        .filter({ hasText: /example/i })
-        .first();
+      const cta = app.locator('main a[href="/app?mode=example"]').first();
       await expect(cta).toBeVisible();
-      const target = new URL(await cta.getAttribute("href"), baseURL);
-      assert.equal(target.pathname, "/app");
-      assert.equal(target.searchParams.get("mode"), "example");
-      // This is the sole deliberate transition out of a marketing context.
       workspace.state.phase = "workspace";
       report.workspaceEntryRequestedAt = new Date().toISOString();
       await cta.click();
       await expect(app).toHaveURL(`${baseURL}/app?mode=example`);
-      await expect(app.getByRole("button", { name: "Example", exact: true })).toHaveAttribute(
-        "aria-pressed",
-        "true",
+      await expect(
+        app.getByRole("heading", { name: "Pick a sample position.", exact: true }),
+      ).toBeVisible();
+      await expect(app.getByRole("textbox", { name: "Shares to sell", exact: true })).toHaveCount(
+        0,
       );
-      await expect(app.getByRole("button", { name: "Live", exact: true })).toHaveAttribute(
-        "aria-pressed",
-        "false",
+      await app.getByRole("button", { name: /Will the Atlas mission launch/ }).click();
+      await expect(app.getByRole("textbox", { name: "Shares to sell", exact: true })).toHaveValue(
+        "250",
       );
+      await expect(app.getByRole("textbox", { name: "Minimum price", exact: true })).toHaveValue(
+        "0.62",
+      );
+      const estimate = app.getByRole("complementary", { name: "Exit estimate", exact: true });
+      const row = (label) =>
+        estimate.locator("dl > div").filter({ has: app.getByText(label, { exact: true }) });
+      await expect(row("Shares that can fill")).toContainText("30 / 250");
+      await expect(row("Shares left unsold")).toContainText("220");
+      await app.getByRole("button", { name: /^Use minimum price 0\.60 / }).click();
+      await expect(row("Shares that can fill")).toContainText("140 / 250");
+      await expect(row("Shares left unsold")).toContainText("110");
       await expect(
         app.getByRole("button", { name: "Review simulated exit", exact: true }),
       ).toBeVisible();
-      await expect(app.locator(".co-market-row")).toHaveCount(2);
+      await expect(app.getByText("Fictional estimate", { exact: true })).toBeVisible();
       assert.equal(await app.evaluate(() => Boolean(window.ethereum || window.solana)), false);
       assert.equal(await app.locator("#privy-dialog").count(), 0);
-      await expect(app.locator(".co-order-row")).toHaveCount(0);
       const history = await app.evaluate(() => localStorage.getItem("closeout-orders-v1"));
       assert.ok(
         history === null || history === "[]",
-        "Fresh example entry unexpectedly wrote order history.",
+        "Selecting an example position unexpectedly wrote order history.",
+      );
+      assert.equal(
+        report.workspaceDataRequests.filter((r) => r.context === "explicit-example-entry").length,
+        0,
       );
     },
   );
   for (const size of sizes) {
-    await check(`Example workspace fits ${size.width}px without horizontal overflow`, async () => {
+    await check(`Example plan fits ${size.width}px without horizontal overflow`, async () => {
       await app.setViewportSize(size);
       await settle(app);
       await noOverflow(app);
-      await expect(app.getByRole("complementary", { name: "Exit ticket" })).toBeVisible();
-      if (size.width !== 768) await screenshot(app, `example-${size.width}`);
+      await expect(
+        app.getByRole("complementary", { name: "Exit estimate", exact: true }),
+      ).toBeVisible();
+      if (size.width !== 760) await screenshot(app, `example-${size.width}`);
     });
   }
   await check(

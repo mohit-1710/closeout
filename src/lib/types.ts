@@ -1,3 +1,6 @@
+import type { AccountProfile } from "./account-profile";
+import type { RecentProfile } from "./recent-profile";
+
 export type DataMode = "live" | "example";
 export type LoadState = "idle" | "loading" | "ready" | "error";
 export interface Outcome {
@@ -121,11 +124,22 @@ export interface WorkspaceController {
   quote: ExitQuote | null;
   accountInput: string;
   onAccountInputChange: (s: string) => void;
-  onLoadPositions: () => void;
+  onLoadPositions: () => Promise<boolean>;
+  onLoadConnectedPositions: () => Promise<boolean>;
+  onResetPortfolio: () => void;
+  recentProfile: RecentProfile | null;
+  onResumeRecentProfile: () => Promise<boolean>;
+  onForgetRecentProfile: () => void;
+  profile: AccountProfile | null;
+  profileState: LoadState;
+  profileError: string | null;
   positions: Position[];
   positionState: LoadState;
   positionError: string | null;
-  onSelectPosition: (p: Position) => void;
+  positionHasMore: boolean;
+  selectedPosition: Position | null;
+  positionSelectionState: LoadState;
+  onSelectPosition: (p: Position) => Promise<boolean>;
   walletStatus: "disconnected" | "connecting" | "connected";
   signerAddress: string | null;
   accountAddress: string | null;

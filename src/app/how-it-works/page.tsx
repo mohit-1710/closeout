@@ -15,7 +15,7 @@ const faqs = [
     id: "wallet",
     question: "Do I need a wallet to try it?",
     answer:
-      "No. Public market browsing and Example mode work without a wallet. You can also inspect a public account’s positions by address; that grants no authority to trade. A live sell requires the correct owner wallet for a supported existing Polymarket account.",
+      "No. Paste a public Polymarket profile link or account address to load its positions without connecting. Or choose a sample position. Connecting an existing wallet can find its linked public profile automatically; a real sell separately requires the account owner’s authorization.",
   },
   {
     id: "floor",
@@ -61,11 +61,12 @@ export default function HowItWorksPage() {
             to a <em>clearer plan.</em>
           </h1>
           <p className="info-lead">
-            Start with the market. Set your terms. Review the exit before you authorize anything.
+            Bring your portfolio. Pick a position. Adjust its exit plan before deciding whether to
+            sell.
           </p>
           <div className="info-actions">
             <Link href="/app" prefetch={false} className="site-button site-button-primary">
-              Open the exit planner <ArrowRight size={17} aria-hidden="true" />
+              Find my positions <ArrowRight size={17} aria-hidden="true" />
             </Link>
             <Link href="/app?mode=example" prefetch={false} className="site-text-link">
               Try an example <ArrowRight size={16} aria-hidden="true" />
@@ -79,21 +80,25 @@ export default function HowItWorksPage() {
               01
             </span>
             <div className="info-step-copy">
-              <p className="site-eyebrow">Explore first</p>
+              <p className="site-eyebrow">Bring what you hold</p>
               <h2 id="find-heading" className="info-section-heading">
-                Find your market.
+                Find your positions.
               </h2>
               <p>
-                Search live Polymarket markets and choose the outcome you hold. Inspect the
-                available bids, or load a public account’s positions to start there.
+                Connect your existing wallet to locate its public Polymarket profile, or paste a
+                profile link, username or account address. Choose the position you want to plan for.
               </p>
-              <p className="info-small site-muted">No wallet connection is needed for this step.</p>
+              <p className="info-small site-muted">
+                Email or Google user? Open your Polymarket profile and copy its public link into
+                Closeout.
+              </p>
             </div>
             <div className="info-step-aside">
               <Eye size={24} strokeWidth={1.5} aria-hidden="true" />
               <strong>Looking is read-only.</strong>
               <p>
-                An account address lets you inspect public positions. It does not let you sell them.
+                Profile lookup reads public positions. It never signs in to the venue or grants
+                authority to sell.
               </p>
             </div>
           </section>
@@ -108,8 +113,9 @@ export default function HowItWorksPage() {
                 Set your exit.
               </h2>
               <p>
-                Enter how many shares to sell and the minimum gross price per share. Choose whether
-                to sell the available amount or require the entire order to fill.
+                The plan starts with your selected position’s size and the current best bid. Change
+                the share quantity or minimum price. Choose a partial fill or require the full
+                amount.
               </p>
               <p>
                 Read the estimated proceeds, fees and shares left unsold together. Raising the floor
@@ -151,12 +157,14 @@ export default function HowItWorksPage() {
                 Review. Then authorize.
               </h2>
               <p>
-                Review refreshes the plan against the current book. Check the amount, floor,
-                estimated fees and fillable shares before proceeding.
+                The planner shows the estimate before any authorization. For a live review, the
+                owner wallet may request a sign-in signature to verify the account and available
+                holdings.
               </p>
               <p>
-                For a live sell, connect the owner wallet for your supported existing account.
-                Account, holdings and venue requirements must pass before authorization.
+                Review refreshes the book and shows the final inputs and estimate. A separate
+                confirmation signs and submits the sell only after account and venue requirements
+                pass.
               </p>
             </div>
             <div className="info-step-aside">
@@ -244,11 +252,11 @@ export default function HowItWorksPage() {
             <h2 id="start-heading" className="info-section-heading">
               Your next exit starts here.
             </h2>
-            <p>Inspect a live market, or explore a clearly labeled example.</p>
+            <p>Load a public portfolio, or walk through a clearly labeled sample position.</p>
           </div>
           <div className="info-closing-actions">
             <Link href="/app" prefetch={false} className="site-button site-button-primary">
-              Open the exit planner <ArrowRight size={17} aria-hidden="true" />
+              Find my positions <ArrowRight size={17} aria-hidden="true" />
             </Link>
             <Link href="/app?mode=example" prefetch={false} className="site-text-link">
               Try an example <ArrowRight size={16} aria-hidden="true" />

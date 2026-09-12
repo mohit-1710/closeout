@@ -12,6 +12,8 @@ import { exampleMarkets, exampleBook, examplePositions } from "@/lib/example-dat
 import { buildQuote } from "@/lib/quote";
 import { compactOrderHistory, decodeOrderHistory } from "@/lib/order-history";
 import { reconcileOrder } from "@/lib/order-status";
+import type { AccountProfile } from "@/lib/account-profile";
+import { readRecentProfile, RECENT_PROFILE_KEY, type RecentProfile } from "@/lib/recent-profile";
 import type {
   DataMode,
   ExitQuote,
@@ -26,13 +28,28 @@ const validAddress = (s: string) => /^0x[0-9a-fA-F]{40}$/.test(s);
 const message = (e: unknown) =>
   e instanceof Error ? e.message : "The request could not be completed.";
 async function get<T>(url: string, signal?: AbortSignal): Promise<T> {
-  const r = await fetch(url, {
-    signal: signal ?? AbortSignal.timeout(15000),
-    cache: "no-store",
-  });
-  const d = await r.json();
-  if (!r.ok) throw new Error(d.error ?? "The venue request failed.");
-  return d as T;
+  try {
+    const r = await fetch(url, {
+      signal: signal ?? AbortSignal.timeout(15000),
+      cache: "no-store",
+    });
+    let d;
+    try {
+      d = await r.json();
+    } catch {
+      throw new Error("We couldn't read the response. Your input is saved; please try again.");
+    }
+    if (!r.ok) throw new Error(d.error ?? "Polymarket is unavailable right now. Please retry.");
+    return d as T;
+  } catch (error) {
+    if (error instanceof Error && error.name === "TimeoutError") {
+      throw new Error("This is taking longer than expected. Your input is saved; please retry.");
+    }
+    if (error instanceof TypeError) {
+      throw new Error("We couldn't reach Polymarket. Check your connection and try again.");
+    }
+    throw error;
+  }
 }
 const STORAGE = "closeout-orders-v1";
 const activeStatuses = ["unknown", "open", "matched", "settling"];
@@ -41,24 +58,37 @@ export function useExitWorkspace(initialMode: DataMode = "live"): WorkspaceContr
   const wallet = useTradingWallet();
   const [mode, setMode] = useState<DataMode>(initialMode);
   const [markets, setMarkets] = useState<Market[]>([]),
-    [marketState, setMarketState] = useState<LoadState>("loading"),
+    [marketState, setMarketState] = useState<LoadState>("idle"),
     [marketError, setMarketError] = useState<string | null>(null);
   const [search, setSearch] = useState(""),
     [query, setQuery] = useState(""),
-    [searchRevision, setSearchRevision] = useState(0);
+    [searchRevision, setSearchRevision] = useState(0),
+    [discoveryRequested, setDiscoveryRequested] = useState(false);
   const [selectedId, setSelectedId] = useState<string | null>(null),
     [outcomeIndex, setOutcomeIndex] = useState(0);
   const [book, setBook] = useState<OrderBook | null>(null),
     [bookState, setBookState] = useState<LoadState>("idle"),
     [bookError, setBookError] = useState<string | null>(null);
-  const [shares, setShares] = useState("250"),
+  const [shares, setShares] = useState(""),
     [floorPrice, setFloorPrice] = useState(""),
     [orderType, setOrderType] = useState<"FAK" | "FOK">("FAK");
   const [accountInput, setAccountInput] = useState(""),
-    [accountAddress, setAccountAddress] = useState<string | null>(null);
-  const [positions, setPositions] = useState<Position[]>([]),
-    [positionState, setPositionState] = useState<LoadState>("idle"),
+    [accountAddress, setAccountAddress] = useState<string | null>(null),
+    [resolvedInput, setResolvedInput] = useState<string | null>(null);
+  const [profile, setProfile] = useState<AccountProfile | null>(null),
+    [profileState, setProfileState] = useState<LoadState>("idle"),
+    [profileError, setProfileError] = useState<string | null>(null);
+  const [recentProfile, setRecentProfile] = useState<RecentProfile | null>(null);
+  const [positions, setPositions] = useState<Position[]>(
+      initialMode === "example" ? examplePositions : [],
+    ),
+    [positionState, setPositionState] = useState<LoadState>(
+      initialMode === "example" ? "ready" : "idle",
+    ),
     [positionError, setPositionError] = useState<string | null>(null);
+  const [positionHasMore, setPositionHasMore] = useState(false),
+    [selectedPosition, setSelectedPosition] = useState<Position | null>(null),
+    [positionSelectionState, setPositionSelectionState] = useState<LoadState>("idle");
   const [availableShares, setAvailableShares] = useState<string | null>(null),
     [collateralBalance, setCollateralBalance] = useState<string | null>(null);
   const [geoStatus, setGeoStatus] = useState<WorkspaceController["geoStatus"]>("checking");
@@ -81,8 +111,13 @@ export function useExitWorkspace(initialMode: DataMode = "live"): WorkspaceContr
     bookRequest = useRef(0),
     marketRequest = useRef(0),
     positionRequest = useRef(0),
+    pendingPortfolio = useRef<{
+      id: number;
+      source: "manual" | "wallet";
+      signer: string | null;
+    } | null>(null),
     contextRef = useRef(""),
-    positionContextRef = useRef(""),
+    bookContextRef = useRef(""),
     selectionRequest = useRef(0),
     historyHealthyRef = useRef(true);
   const ordersRef = useRef(orders);
@@ -91,7 +126,9 @@ export function useExitWorkspace(initialMode: DataMode = "live"): WorkspaceContr
   const tokenId = selectedMarket?.outcomes[outcomeIndex]?.tokenId ?? "";
   const contextKey = `${mode}:${tokenId}:${wallet.address ?? ""}:${accountAddress ?? ""}`;
   contextRef.current = contextKey;
-  positionContextRef.current = `${mode}:${accountInput.trim().toLowerCase()}`;
+  bookContextRef.current = `${mode}:${selectedMarket?.conditionId ?? ""}:${tokenId}`;
+  const identityRef = useRef({ mode, signer: wallet.address });
+  identityRef.current = { mode, signer: wallet.address };
   const reviewed = useRef<{
     context: string;
     shares: string;
@@ -139,6 +176,13 @@ export function useExitWorkspace(initialMode: DataMode = "live"): WorkspaceContr
     },
     [],
   );
+  useEffect(() => {
+    try {
+      setRecentProfile(readRecentProfile(localStorage.getItem(RECENT_PROFILE_KEY)));
+    } catch {
+      // A disabled storage preference cannot block a public portfolio lookup.
+    }
+  }, []);
   useEffect(() => {
     try {
       const saved = decodeOrderHistory(localStorage.getItem(STORAGE));
@@ -193,7 +237,14 @@ export function useExitWorkspace(initialMode: DataMode = "live"): WorkspaceContr
       cancelled = true;
     };
   }, []);
-  useEffect(() => () => sessionRef.current?.dispose(), []);
+  useEffect(
+    () => () => {
+      sessionRef.current?.dispose();
+      positionRequest.current++;
+      selectionRequest.current++;
+    },
+    [],
+  );
   useEffect(() => {
     sessionRef.current?.dispose();
     sessionRef.current = null;
@@ -203,6 +254,20 @@ export function useExitWorkspace(initialMode: DataMode = "live"): WorkspaceContr
     setReviewOpen(false);
     reviewed.current = null;
   }, [wallet.address, accountAddress, mode]);
+  useEffect(() => {
+    const pending = pendingPortfolio.current;
+    if (pending?.source === "wallet" && pending.signer !== wallet.address) {
+      positionRequest.current++;
+      pendingPortfolio.current = null;
+      setProfileState("error");
+      setProfileError("The connected wallet changed. Find positions again for the current wallet.");
+      setProfile(null);
+      setAccountAddress(null);
+      setResolvedInput(null);
+      setPositions([]);
+      setPositionState("idle");
+    }
+  }, [wallet.address]);
 
   useEffect(() => {
     const id = ++marketRequest.current,
@@ -214,17 +279,20 @@ export function useExitWorkspace(initialMode: DataMode = "live"): WorkspaceContr
         m.question.toLowerCase().includes(query.toLowerCase()),
       );
       setMarkets(values);
-      setSelectedId(values[0]?.id ?? null);
-      setOutcomeIndex(0);
-      setFloorPrice("");
       setMarketState("ready");
+      return () => controller.abort();
+    }
+    if (!discoveryRequested) {
+      setMarketState("idle");
       return () => controller.abort();
     }
     get<{ markets: Market[] }>(`/api/markets?q=${encodeURIComponent(query)}`, controller.signal)
       .then((d) => {
         if (id !== marketRequest.current) return;
         setMarkets(d.markets);
-        setSelectedId(d.markets[0]?.id ?? null);
+        setSelectedId(null);
+        setSelectedPosition(null);
+        setShares("");
         setOutcomeIndex(0);
         setFloorPrice("");
         setMarketState("ready");
@@ -237,13 +305,13 @@ export function useExitWorkspace(initialMode: DataMode = "live"): WorkspaceContr
         setMarketError(message(e));
       });
     return () => controller.abort();
-  }, [mode, query, searchRevision]);
+  }, [mode, query, searchRevision, discoveryRequested]);
 
   const refreshBook = useCallback(
     async (showLoading = true): Promise<OrderBook | null> => {
       if (!tokenId || !selectedMarket) return null;
       const id = ++bookRequest.current,
-        key = contextRef.current;
+        key = bookContextRef.current;
       if (showLoading) setBookState("loading");
       setBookError(null);
       try {
@@ -255,16 +323,18 @@ export function useExitWorkspace(initialMode: DataMode = "live"): WorkspaceContr
                   `/api/book?tokenId=${tokenId}&conditionId=${selectedMarket.conditionId}`,
                 )
               ).book;
-        if (id !== bookRequest.current || key !== contextRef.current) return null;
+        if (id !== bookRequest.current || key !== bookContextRef.current) return null;
         setBook(fresh);
         setBookState("ready");
         setNow(Date.now());
-        setFloorPrice(
-          (p) => p || fresh.bids[Math.min(2, fresh.bids.length - 1)]?.price || fresh.tickSize,
+        const bestBid = fresh.bids.reduce(
+          (best, level) => (!best || new Decimal(level.price).gt(best) ? level.price : best),
+          "",
         );
+        setFloorPrice((p) => p || bestBid);
         return fresh;
       } catch (e) {
-        if (id === bookRequest.current && key === contextRef.current) {
+        if (id === bookRequest.current && key === bookContextRef.current) {
           setBookState("error");
           setBookError(message(e));
           setBook(null);
@@ -315,9 +385,11 @@ export function useExitWorkspace(initialMode: DataMode = "live"): WorkspaceContr
   const executionBlockers = useMemo(() => {
     const blockers = [...(quote?.blockers ?? [])];
     if (!selectedMarket || !quote) blockers.push("Select a market and enter your exit amount.");
+    if (positionSelectionState === "loading")
+      blockers.push("Wait for the selected position to finish loading.");
     if (mode === "live") {
       if (!wallet.address) blockers.push("Connect the wallet that owns your Polymarket account.");
-      if (!accountAddress || accountInput.trim().toLowerCase() !== accountAddress.toLowerCase())
+      if (!accountAddress || accountInput.trim().toLowerCase() !== resolvedInput)
         blockers.push("Load your Polymarket account address to review an exit.");
       if (geoStatus !== "allowed") blockers.push(geoDetail);
       if (unresolved)
@@ -337,8 +409,11 @@ export function useExitWorkspace(initialMode: DataMode = "live"): WorkspaceContr
         new Decimal(shares).gt(availableShares)
       )
         blockers.push(`Only ${availableShares} unreserved shares are available.`);
-    } else if (/^\d+(\.\d+)?$/.test(shares) && new Decimal(shares).gt("250"))
-      blockers.push("The fictional example account holds 250 shares.");
+    } else if (!selectedPosition || selectedPosition.tokenId !== tokenId) {
+      blockers.push("Choose a sample position before reviewing its exit.");
+    } else if (/^\d+(\.\d+)?$/.test(shares) && new Decimal(shares).gt(selectedPosition.size)) {
+      blockers.push(`This sample position contains ${selectedPosition.size} shares.`);
+    }
     return [...new Set(blockers)];
   }, [
     quote,
@@ -347,6 +422,7 @@ export function useExitWorkspace(initialMode: DataMode = "live"): WorkspaceContr
     wallet.address,
     accountAddress,
     accountInput,
+    resolvedInput,
     geoStatus,
     geoDetail,
     unresolved,
@@ -354,6 +430,9 @@ export function useExitWorkspace(initialMode: DataMode = "live"): WorkspaceContr
     historyHealthy,
     availableShares,
     shares,
+    selectedPosition,
+    positionSelectionState,
+    tokenId,
   ]);
 
   async function ensureSession(): Promise<TradingSession> {
@@ -376,54 +455,165 @@ export function useExitWorkspace(initialMode: DataMode = "live"): WorkspaceContr
     sessionKeyRef.current = key;
     return session;
   }
-  async function loadPositions() {
-    if (busy.current) return;
-    const address = accountInput.trim(),
-      id = ++positionRequest.current,
-      requestContext = `${mode}:${accountInput.trim().toLowerCase()}`;
+  async function loadPortfolio(
+    source: "manual" | "wallet",
+    resumedInput?: string,
+  ): Promise<boolean> {
+    if (busy.current) return false;
+    const input =
+      source === "wallet" ? (wallet.address ?? "") : (resumedInput ?? accountInput).trim();
+    const requestedMode = mode;
+    const requestedSigner = wallet.address;
+    const id = ++positionRequest.current;
+    const current = () =>
+      id === positionRequest.current &&
+      identityRef.current.mode === requestedMode &&
+      (source !== "wallet" || identityRef.current.signer === requestedSigner);
+
     if (mode === "example") {
       setPositions(examplePositions);
       setPositionState("ready");
       setPositionError(null);
-      return;
+      return true;
     }
-    if (!validAddress(address)) {
-      setPositionError("Enter the 0x account address shown on your Polymarket profile.");
-      setPositionState("error");
-      return;
-    }
-    setAccountAddress(address);
-    setPositionState("loading");
-    setPositionError(null);
-    setPositions([]);
-    try {
-      const d = await get<{ positions: Position[]; hasMore?: boolean }>(
-        `/api/positions?account=${address}`,
+    if (!input) {
+      setProfileState("error");
+      setProfileError(
+        source === "wallet"
+          ? "Connect the wallet you use with Polymarket to find its profile."
+          : "Paste a Polymarket profile link, username or 0x account address.",
       );
-      if (id !== positionRequest.current || requestContext !== positionContextRef.current) return;
-      setPositions(d.positions);
+      return false;
+    }
+
+    pendingPortfolio.current = { id, source, signer: requestedSigner };
+    if (resumedInput !== undefined) setAccountInput(input);
+
+    // Public portfolio discovery is independent of trade authority. A failed
+    // import keeps the input editable and never leaves an old account active.
+    selectionRequest.current++;
+    bookRequest.current++;
+    setSelectedId(null);
+    setSelectedPosition(null);
+    setPositionSelectionState("idle");
+    setBook(null);
+    setBookState("idle");
+    setShares("");
+    setFloorPrice("");
+    setAccountAddress(null);
+    setResolvedInput(null);
+    setAvailableShares(null);
+    setProfile(null);
+    setProfileState("loading");
+    setProfileError(null);
+    setPositionState("idle");
+    setPositionError(null);
+    setPositionHasMore(false);
+    setPositions([]);
+    setReviewOpen(false);
+    reviewed.current = null;
+    let profileResolved = false;
+    try {
+      const result = await get<{ profile: AccountProfile }>(
+        `/api/profile?input=${encodeURIComponent(input)}&source=${source}`,
+        AbortSignal.timeout(30_000),
+      );
+      if (!current()) return false;
+      const next = result.profile;
+      // Bind the resolved account to exactly the input that produced it. Keep
+      // a manually entered profile link intact if a later positions read fails.
+      setProfile(next);
+      setProfileState("ready");
+      setAccountAddress(next.accountAddress);
+      const nextInput = source === "wallet" ? next.accountAddress : input;
+      setAccountInput(nextInput);
+      setResolvedInput(nextInput.trim().toLowerCase());
+      profileResolved = true;
+      setPositionState("loading");
+      const data = await get<{ positions: Position[]; hasMore?: boolean }>(
+        `/api/positions?account=${encodeURIComponent(next.accountAddress)}`,
+      );
+      if (!current()) return false;
+      setPositions(data.positions);
       setPositionState("ready");
-      if (d.hasMore)
-        setPositionError(
-          "Showing the first 100 positions. Additional positions may exist on Polymarket.",
-        );
-    } catch (e) {
-      if (id === positionRequest.current && requestContext === positionContextRef.current) {
-        setPositionState("error");
-        setPositionError(message(e));
+      setPositionHasMore(data.hasMore === true);
+      const bookmark: RecentProfile = {
+        accountAddress: next.accountAddress,
+        displayName: next.displayName,
+        username: next.username,
+      };
+      setRecentProfile(bookmark);
+      try {
+        localStorage.setItem(RECENT_PROFILE_KEY, JSON.stringify(bookmark));
+      } catch {
+        // Only the convenience bookmark is lost. Trading history has its own
+        // separate, fail-closed persistence contract.
       }
+      return true;
+    } catch (error) {
+      if (!current()) return false;
+      if (profileResolved) {
+        setPositionState("error");
+        setPositionError(message(error));
+      } else {
+        setProfileState("error");
+        setProfileError(message(error));
+      }
+      return false;
+    } finally {
+      if (pendingPortfolio.current?.id === id) pendingPortfolio.current = null;
     }
   }
-  async function selectPosition(position: Position) {
-    if (busy.current) return;
-    const selection = ++selectionRequest.current,
-      key = contextRef.current;
+
+  function resetPortfolio(nextMode: DataMode = mode) {
+    positionRequest.current++;
+    pendingPortfolio.current = null;
+    selectionRequest.current++;
     marketRequest.current++;
+    bookRequest.current++;
+    setProfile(null);
+    setProfileState("idle");
+    setProfileError(null);
+    setAccountInput("");
+    setAccountAddress(null);
+    setResolvedInput(null);
+    setPositions(nextMode === "example" ? examplePositions : []);
+    setPositionState(nextMode === "example" ? "ready" : "idle");
+    setPositionError(null);
+    setPositionHasMore(false);
+    setSelectedPosition(null);
+    setPositionSelectionState("idle");
+    setMarkets(nextMode === "example" ? exampleMarkets : []);
+    setMarketState(nextMode === "example" ? "ready" : "idle");
+    setMarketError(null);
+    setSelectedId(null);
+    setOutcomeIndex(0);
+    setBook(null);
+    setBookState("idle");
+    setBookError(null);
+    setShares("");
+    setFloorPrice("");
+    setOrderType("FAK");
+    setAvailableShares(null);
+    setSearch("");
+    setQuery("");
+    setDiscoveryRequested(false);
+    setReviewOpen(false);
+    reviewed.current = null;
+  }
+  async function selectPosition(position: Position): Promise<boolean> {
+    if (busy.current) return false;
+    const selection = ++selectionRequest.current,
+      requestMode = mode;
+    marketRequest.current++;
+    setPositionError(null);
+    setPositionSelectionState("loading");
     if (position.redeemable) {
       setPositionError(
-        "This position is redeemable. Redeem it on Polymarket; it is not an open-market exit.",
+        "This position is ready to redeem on Polymarket. It does not need an open-market exit.",
       );
-      return;
+      setPositionSelectionState("error");
+      return false;
     }
     let market = markets.find((m) => m.conditionId === position.conditionId);
     if (!market && mode === "live") {
@@ -431,29 +621,40 @@ export function useExitWorkspace(initialMode: DataMode = "live"): WorkspaceContr
         const d = await get<{ markets: Market[] }>(
           `/api/markets?conditionId=${position.conditionId}`,
         );
-        if (selection !== selectionRequest.current || key !== contextRef.current) return;
+        if (selection !== selectionRequest.current || requestMode !== identityRef.current.mode)
+          return false;
         market = d.markets[0];
         if (market) setMarkets((ms) => [market!, ...ms.filter((m) => m.id !== market!.id)]);
       } catch (e) {
-        if (selection === selectionRequest.current && key === contextRef.current)
+        if (selection === selectionRequest.current && requestMode === identityRef.current.mode) {
           setPositionError(message(e));
-        return;
+          setPositionSelectionState("error");
+        }
+        return false;
       }
     }
     if (!market) {
-      setPositionError("This position’s market is unavailable.");
-      return;
+      setPositionError("This position’s market is unavailable. Try another position or retry.");
+      setPositionSelectionState("error");
+      return false;
     }
     const index = market.outcomes.findIndex((o) => o.tokenId === position.tokenId);
     if (index < 0) {
-      setPositionError("Position token does not match the market.");
-      return;
+      setPositionError(
+        "The position could not be matched to its market. Refresh the positions and try again.",
+      );
+      setPositionSelectionState("error");
+      return false;
     }
     setSelectedId(market.id);
     setOutcomeIndex(index);
+    setSelectedPosition(position);
+    setPositionSelectionState("ready");
+    setMarketState("ready");
     setFloorPrice("");
     setShares(new Decimal(position.size).toDecimalPlaces(2, Decimal.ROUND_DOWN).toFixed());
     setReviewOpen(false);
+    return true;
   }
   async function review() {
     if (busy.current || executionBlockers.length) return;
@@ -794,6 +995,7 @@ export function useExitWorkspace(initialMode: DataMode = "live"): WorkspaceContr
       return;
     }
     selectionRequest.current++;
+    if (positionSelectionState === "loading") setPositionSelectionState("idle");
     setReviewOpen(false);
     reviewed.current = null;
     fn();
@@ -822,22 +1024,8 @@ export function useExitWorkspace(initialMode: DataMode = "live"): WorkspaceContr
     mode,
     onModeChange: (m) =>
       edit(() => {
-        positionRequest.current++;
-        bookRequest.current++;
-        marketRequest.current++;
-        setMarkets([]);
-        setSelectedId(null);
-        setBook(null);
-        setMarketState("loading");
+        resetPortfolio(m);
         setMode(m);
-        setSearch("");
-        setQuery("");
-        setPositions(m === "example" ? examplePositions : []);
-        setPositionState(m === "example" ? "ready" : "idle");
-        setPositionError(null);
-        setAccountInput("");
-        setAccountAddress(null);
-        setFloorPrice("");
         setWalletError(null);
       }),
     markets,
@@ -847,6 +1035,7 @@ export function useExitWorkspace(initialMode: DataMode = "live"): WorkspaceContr
     onSearchChange: setSearch,
     onSearch: () =>
       edit(() => {
+        setDiscoveryRequested(true);
         setQuery(search.trim());
         setSearchRevision((n) => n + 1);
       }),
@@ -854,6 +1043,8 @@ export function useExitWorkspace(initialMode: DataMode = "live"): WorkspaceContr
     onSelectMarket: (id) =>
       edit(() => {
         setSelectedId(id);
+        setSelectedPosition(null);
+        setShares("");
         setOutcomeIndex(0);
         setFloorPrice("");
       }),
@@ -879,15 +1070,49 @@ export function useExitWorkspace(initialMode: DataMode = "live"): WorkspaceContr
       edit(() => {
         setAccountInput(s);
         positionRequest.current++;
+        pendingPortfolio.current = null;
         setPositions([]);
         setAccountAddress(null);
+        setResolvedInput(null);
         setAvailableShares(null);
+        setProfile(null);
+        setProfileState("idle");
+        setProfileError(null);
+        setPositionState("idle");
+        setPositionError(null);
+        setPositionHasMore(false);
+        setSelectedPosition(null);
+        setPositionSelectionState("idle");
+        setSelectedId(null);
+        setShares("");
+        setFloorPrice("");
       }),
-    onLoadPositions: () => void loadPositions(),
+    onLoadPositions: () => loadPortfolio("manual"),
+    onLoadConnectedPositions: () => loadPortfolio("wallet"),
+    onResetPortfolio: () => edit(() => resetPortfolio()),
+    recentProfile,
+    onResumeRecentProfile: () =>
+      recentProfile
+        ? loadPortfolio("manual", recentProfile.accountAddress)
+        : Promise.resolve(false),
+    onForgetRecentProfile: () => {
+      setRecentProfile(null);
+      try {
+        localStorage.removeItem(RECENT_PROFILE_KEY);
+      } catch {
+        /* Preference storage is optional. */
+      }
+    },
+    profile,
+    profileState,
+    profileError,
     positions,
     positionState,
     positionError,
-    onSelectPosition: (p) => void selectPosition(p),
+    positionHasMore,
+    selectedPosition,
+    positionSelectionState,
+    onSelectPosition: selectPosition,
     walletStatus: wallet.status,
     signerAddress: wallet.address,
     accountAddress,
@@ -895,7 +1120,7 @@ export function useExitWorkspace(initialMode: DataMode = "live"): WorkspaceContr
     onConnect: () => void wallet.connect().catch((e) => setWalletError(message(e))),
     onDisconnect: () => edit(() => wallet.disconnect()),
     connectLabel: wallet.connectLabel,
-    availableShares: mode === "example" ? "250" : availableShares,
+    availableShares: mode === "example" ? (selectedPosition?.size ?? null) : availableShares,
     collateralBalance: mode === "example" ? null : collateralBalance,
     executionEnabled: executionBlockers.length === 0 && !submitting,
     executionBlockers,

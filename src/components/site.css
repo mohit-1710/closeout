@@ -360,34 +360,6 @@
 .home-proof-strip svg {
   @apply text-primary;
 }
-.home-perspective {
-  @apply grid grid-cols-2 gap-24 py-28;
-}
-.perspective-heading h2 {
-  margin-block: 22px 24px;
-}
-.perspective-body {
-  @apply pt-8;
-  max-width: 540px;
-}
-.perspective-body .perspective-lead {
-  @apply mb-6 text-foreground;
-  font: 500 30px/1.35 var(--font-sans);
-  letter-spacing: -0.05em;
-}
-.perspective-lead em {
-  @apply font-normal;
-  font-family: var(--font-display), Georgia, serif;
-}
-.perspective-body > p {
-  @apply text-muted mb-4;
-  font-size: 15px;
-  line-height: 1.8;
-}
-.home-control-section {
-  @apply bg-raised py-24;
-  border-block: 1px solid var(--border);
-}
 .section-heading {
   @apply flex justify-between items-end gap-8 mb-12;
 }
@@ -398,122 +370,6 @@
   @apply text-muted;
   font-size: 14px;
   padding-bottom: 5px;
-}
-.control-grid {
-  @apply grid gap-5;
-  grid-template-columns: 1.22fr 1fr;
-}
-.control-grid article {
-  @apply bg-surface;
-  border: 1px solid var(--border);
-  border-radius: 12px;
-}
-.control-main,
-.control-side {
-  @apply p-10;
-}
-.control-index {
-  @apply text-muted;
-  font: 12px/1.5 var(--font-mono);
-  letter-spacing: 0.07em;
-}
-.control-grid h3 {
-  @apply font-medium;
-  font-size: 30px;
-  line-height: 1.18;
-  letter-spacing: -0.055em;
-  margin-block: 18px 16px;
-}
-.control-grid p {
-  @apply text-muted;
-  font-size: 14px;
-  line-height: 1.75;
-  max-width: 370px;
-}
-.floor-illustration {
-  padding: 36px 12px 4px;
-}
-.floor-illustration > div {
-  @apply flex items-center gap-5 text-muted;
-  min-height: 34px;
-  font: 12px/1.5 var(--font-mono);
-}
-.floor-illustration span {
-  @apply shrink-0;
-  width: 38px;
-}
-.floor-illustration i {
-  @apply block bg-primary;
-  height: 17px;
-  border-radius: 2px;
-}
-.floor-illustration .below-floor i {
-  background: var(--border);
-}
-.floor-illustration .floor-rule {
-  @apply text-primary;
-  border-bottom: 1px dashed var(--accent);
-  padding-block: 7px;
-  margin-block: 2px 8px;
-}
-.floor-rule b {
-  @apply font-normal ml-auto;
-}
-.control-side {
-  @apply flex flex-col justify-between;
-}
-.fill-illustration {
-  @apply mt-12;
-}
-.fill-label {
-  @apply text-muted;
-  font-size: 12px;
-}
-.fill-bar {
-  @apply flex h-10 my-4;
-  gap: 5px;
-}
-.fill-bar > span:first-child {
-  @apply bg-primary;
-  width: 56%;
-  border-radius: 3px;
-}
-.fill-bar > span:last-child {
-  width: 44%;
-  background: repeating-linear-gradient(
-    125deg,
-    var(--border) 0px,
-    var(--border) 1px,
-    transparent 1px,
-    transparent 6px
-  );
-  border: 1px solid var(--border);
-  border-radius: 3px;
-}
-.fill-illustration > div:last-child {
-  @apply flex justify-between;
-}
-.fill-illustration strong {
-  @apply font-medium;
-  font-size: 22px;
-  letter-spacing: -0.04em;
-}
-.fill-illustration strong > span {
-  @apply font-normal text-muted;
-  font-size: 12px;
-  letter-spacing: -0.01em;
-  margin-left: 3px;
-}
-.control-bottom {
-  @apply col-span-full flex items-center justify-between gap-12;
-  padding: 32px 40px;
-}
-.control-bottom h3 {
-  @apply mb-0;
-  font-size: 25px;
-}
-.control-bottom > p {
-  max-width: 340px;
 }
 .home-journey {
   padding-block: 112px 64px;
@@ -694,13 +550,6 @@
   .home-proof-strip p {
     @apply w-full;
   }
-  .control-main,
-  .control-side {
-    @apply p-8;
-  }
-  .control-bottom {
-    @apply p-8 gap-6;
-  }
 }
 @media (max-width: 800px) {
   .site-header-inner {
@@ -742,39 +591,11 @@
   .preview-check {
     @apply flex;
   }
-  .home-perspective {
-    @apply gap-10 py-18;
-  }
-  .perspective-body {
-    @apply pt-5;
-  }
-  .perspective-body .perspective-lead {
-    font-size: 25px;
-  }
   .section-heading {
     @apply items-start;
   }
   .section-heading > p {
     max-width: 230px;
-  }
-  .control-grid {
-    @apply grid-cols-2 gap-4;
-  }
-  .control-main,
-  .control-side {
-    @apply p-6;
-  }
-  .control-grid h3 {
-    font-size: 25px;
-  }
-  .control-bottom {
-    @apply flex-wrap;
-  }
-  .control-bottom > p {
-    max-width: 300px;
-  }
-  .control-bottom > .site-round-link {
-    @apply ml-auto;
   }
   .home-journey {
     padding-block: 72px 40px;
@@ -893,18 +714,6 @@
     @apply grid grid-cols-1 py-6;
     gap: 14px;
   }
-  .home-perspective {
-    @apply grid-cols-1 gap-8;
-  }
-  .perspective-body {
-    @apply p-0;
-  }
-  .perspective-body .perspective-lead {
-    font-size: 28px;
-  }
-  .home-control-section {
-    @apply py-16;
-  }
   .section-heading {
     @apply block mb-8;
   }
@@ -914,19 +723,6 @@
   }
   .section-heading > p {
     @apply max-w-none;
-  }
-  .control-grid {
-    @apply grid-cols-1;
-  }
-  .control-bottom {
-    @apply p-6 gap-5;
-    grid-column: auto;
-  }
-  .control-bottom h3 {
-    font-size: 25px;
-  }
-  .fill-illustration {
-    @apply mt-8;
   }
   .journey-list article {
     @apply gap-5 py-7;
